@@ -6,7 +6,7 @@
 4.  Run `yarn deploy` to deploy the example contract locally
 5.  Run `yarn dev` to start your FrontEnd dev environment
 
-[ETHGlobal Scaling 2023 Hackathon](https://ethglobal.com/events/scaling2023) project.
+ [ETHGlobal Scaling 2023 Hackathon](https://ethglobal.com/events/scaling2023) project.
 
 <br/>
 
