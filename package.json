@@ -1,0 +1,29 @@
+{
+  "name": "apes-refi-club",
+  "version": "0.0.1",
+  "description": "apes-refi-club monorepo with nextjs and hardhat",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "dev": "yarn workspace @apes-refi-club/frontend dev",
+    "build": "yarn workspace @apes-refi-club/frontend build",
+    "start": "yarn workspace @apes-refi-club/frontend start",
+    "lint": "yarn workspace @apes-refi-club/frontend lint",
+    "chain": "yarn workspace @apes-refi-club/backend chain",
+    "compile": "yarn workspace @apes-refi-club/backend compile",
+    "test": "yarn workspace @apes-refi-club/backend test",
+    "clean": "yarn workspace @apes-refi-club/backend clean",
+    "deploy": "yarn workspace @apes-refi-club/backend deploy"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@graphprotocol/graph-ts",
+      "**/@graphprotocol/graph-ts/**",
+      "**/backend",
+      "**/backend/**"
+    ]
+  }
+}
