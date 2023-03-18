@@ -16,4 +16,4 @@
 | [Büşra Akyol](https://twitter.com/eurideirs)           | Designer                 |
 | [Muhittin Köybaşı](https://github.com/koybasimuhittin) | Frontend Developer       |
 | [Ömer Furkan Yürük](https://github.com/oemerfurkan)    | Full Stack Developer     |
-| [Yasin Çetin](https://github.com/yasincet)             | Smart Contract Developer |
+| [Yasin Çetinkaya](https://github.com/yasincet)         | Smart Contract Developer |
