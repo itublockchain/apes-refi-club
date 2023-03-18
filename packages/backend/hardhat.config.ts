@@ -6,12 +6,16 @@ import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-etherscan';
 
 dotenv.config({ path: '../../.env' });
+
+export const NODE_ENV: string = process.env.NODE_ENV || 'productions';
+export const NETWORK: string = process.env.NETWORK || 'localhost';
+
 const defaultNetwork = 'localhost';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-const config: HardhatUserConfig = {
+const config = {
   solidity: '0.8.10',
   defaultNetwork,
 
