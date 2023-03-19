@@ -22,7 +22,7 @@ function Loader(props: LoaderProps) {
       <div className='w-40 h-40 flex flex-col items-center'>
         <svg
           aria-hidden='true'
-          className={`inline w-28 h-28 mr-2 text-gray-900 animate-spin fill-gray-300`}
+          className={`inline w-28 h-28 mr-2 text-gray-900 animate-spin fill-gray-500`}
           viewBox='0 0 100 101'
           fill='none'
           xmlns='http://www.w3.org/2000/svg'

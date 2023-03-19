@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Loader } from '@/components';
+import { ApeCard, Loader } from '@/components';
 
 type ApesListProps = {
-  apeImages: string[];
-  setApeImages: Function;
-  isControlOnList: boolean;
+  apeIndexes: number[];
+};
+
+type ApeData = {
+  image: string;
+  paidCarbonPercantage: number;
 };
 
 interface Attribute {
@@ -20,62 +23,60 @@ interface MetaData {
   attributes: Attribute[];
 }
 
-export default function ApesList(props: ApesListProps) {
-  const { apeImages, setApeImages, isControlOnList } = props;
-  const MAX_LOAD_ONCE = 30;
-  const [offset, setOffset] = useState<number>(MAX_LOAD_ONCE);
+const MAX_LOAD_ONCE = 30;
+const IPFS_BASE_URL = 'https://ipfs.io/ipfs/';
+const APE_YACHT_CLUB_BASE = 'QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/';
 
-  const APE_YACHT_CLUB_BASE_URI = 'https://ipfs.io/ipfs/QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/';
-  const MAX_APE_COUNT = 9999;
+export default function ApesList(props: ApesListProps) {
+  const { apeIndexes } = props;
+  let offset = Math.min(apeIndexes.length, MAX_LOAD_ONCE);
+
+  const [apesData, setApesData] = useState<ApeData[]>([]);
+
+  const initializeApes = async () => {
+    const initialApes: ApeData[] = [];
+    for (let index = 0; index < offset; index += 1) {
+      const metadata: MetaData = (await axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${apeIndexes[index]}`)).data;
+      const image = metadata.image.split('/');
+      const apeImage = `${IPFS_BASE_URL}${image[image.length - 1]}`;
+      initialApes.push({ image: apeImage, paidCarbonPercantage: Math.floor(Math.random() * 100) });
+    }
+    return initialApes;
+  };
 
   useEffect(() => {
-    setApeImages([]);
-    if (isControlOnList) {
-      setOffset(MAX_LOAD_ONCE);
-      for (let apeIndex = 0; apeIndex < offset; apeIndex += 1) {
-        axios.get(`${APE_YACHT_CLUB_BASE_URI}${apeIndex}`).then((data) => {
-          const metaData: MetaData = data.data;
-          const imageURI = metaData.image.split('/');
-          const imageLink = `https://ipfs.io/ipfs/${imageURI[imageURI.length - 1]}`;
-          setApeImages((prev: string[]) => [...prev, imageLink]);
-          //console.log(imageLink);
-        });
-      }
-    }
-  }, [isControlOnList]);
+    initializeApes().then((initialApes: ApeData[]) => {
+      setApesData(initialApes);
+    });
+  }, [apeIndexes]);
 
   const fetchMore = () => {
-    setTimeout(() => {
-      setOffset((prev) => prev + MAX_LOAD_ONCE);
-      for (let apeIndex = offset; apeIndex < Math.min(offset + MAX_LOAD_ONCE, MAX_APE_COUNT); apeIndex += 1) {
-        axios.get(`${APE_YACHT_CLUB_BASE_URI}${apeIndex}`).then((data) => {
-          const metaData: MetaData = data.data;
-          const imageURI = metaData.image.split('/');
-          const imageLink = `https://ipfs.io/ipfs/${imageURI[imageURI.length - 1]}`;
-          setApeImages((prev: string[]) => [...prev, imageLink]);
-          //console.log(imageLink);
-        });
-        //setLoading(false);
-      }
-    }, 1000);
+    for (let index = offset; index < Math.min(offset + MAX_LOAD_ONCE, apeIndexes.length); index += 1) {
+      axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${apeIndexes[index]}`).then((response) => {
+        const metadata = response.data;
+        const image = metadata.image.split('/');
+        const apeImage = `${IPFS_BASE_URL}${image[image.length - 1]}`;
+        const newApe: ApeData = { image: apeImage, paidCarbonPercantage: Math.floor(Math.random() * 100) };
+        setApesData((prev: ApeData[]) => [...prev, newApe]);
+      });
+    }
+    offset = Math.min(offset + MAX_LOAD_ONCE, apeIndexes.length);
   };
 
   return (
     <div className='w-full h-full bg-gray-200'>
       <InfiniteScroll
-        dataLength={apeImages.length}
+        dataLength={apesData.length}
         next={fetchMore}
-        hasMore={apeImages.length < MAX_APE_COUNT && isControlOnList}
-        loader={<Loader loaderText='Loading' loaderColor='green-600' />}
+        hasMore={apesData.length < apeIndexes.length}
+        loader={<Loader loaderColor='blue' loaderText='Loading' />}
       >
-        <ul className='px-10 py-4 grid sm:grid-cols-3 gap-5 justify-items-center align-middle md:grid-cols-4 lg:grid-cols-5'>
-          {apeImages.map((apeImage, index) => {
-            console.log(apeImages.length);
+        <ul className='px-10 py-3 grid sm:grid-cols-3 gap-5 justify-items-center align-middle md:grid-cols-4 lg:grid-cols-5'>
+          {apesData.map((ape, index) => {
+            //console.log(index);
             return (
               <li key={index}>
-                <div className='w-40 h-40 bg-black rounded-md border-2 border-black'>
-                  <img src={apeImage} alt='' />
-                </div>
+                <ApeCard ape={ape} />
               </li>
             );
           })}

@@ -26,7 +26,7 @@ export default function Header(props: HeaderProps) {
 
   return (
     <>
-      <div className='p-3 bg-gray-800 flex items-center justify-between'>
+      <div className='p-3 bg-gray-800 flex items-center justify-between shadow-sm shadow-gray-800 z-10'>
         <div className='float-left flex items-center'>
           <div className='rounded-full w-12 h-12 bg-slate-50'></div>
         </div>
