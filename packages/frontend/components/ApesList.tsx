@@ -26,11 +26,12 @@ export default function ApesList(props: ApesListProps) {
   const [offset, setOffset] = useState<number>(MAX_LOAD_ONCE);
 
   const APE_YACHT_CLUB_BASE_URI = 'https://ipfs.io/ipfs/QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/';
-  const MAX_APE_COUNT = 100;
+  const MAX_APE_COUNT = 9999;
 
   useEffect(() => {
+    setApeImages([]);
     if (isControlOnList) {
-      setApeImages([]);
+      setOffset(MAX_LOAD_ONCE);
       for (let apeIndex = 0; apeIndex < offset; apeIndex += 1) {
         axios.get(`${APE_YACHT_CLUB_BASE_URI}${apeIndex}`).then((data) => {
           const metaData: MetaData = data.data;
@@ -41,7 +42,7 @@ export default function ApesList(props: ApesListProps) {
         });
       }
     }
-  }, []);
+  }, [isControlOnList]);
 
   const fetchMore = () => {
     setTimeout(() => {
@@ -69,6 +70,7 @@ export default function ApesList(props: ApesListProps) {
       >
         <ul className='px-10 py-4 grid sm:grid-cols-3 gap-5 justify-items-center align-middle md:grid-cols-4 lg:grid-cols-5'>
           {apeImages.map((apeImage, index) => {
+            console.log(apeImages.length);
             return (
               <li key={index}>
                 <div className='w-40 h-40 bg-black rounded-md border-2 border-black'>
