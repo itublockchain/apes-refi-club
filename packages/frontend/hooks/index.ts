@@ -1,1 +1,3 @@
-export { useIsMounted } from './useIsMounted';
+import { useIsMounted } from './useIsMounted';
+
+export { useIsMounted };
