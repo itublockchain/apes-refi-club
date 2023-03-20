@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
-import { ApesList, Loader } from '@/components';
+import { ApesList, Loader, ToggleButton } from '@/components';
 import Image from 'next/image';
 import apeYachtClubCover from '../public/apeYachtClubCover.png';
 import { AiOutlineSearch } from 'react-icons/ai';
@@ -9,6 +9,8 @@ import { ALCHEMY_KEY, ALCHEMY_MAINNET_BASEURL, BORED_APE_YACHT_CLUB_ADDRESS } fr
 import abi from '../constants/boredApeYachtClubABI.json';
 import { useContract, useProvider } from 'wagmi';
 import { BigNumber, ethers } from 'ethers';
+import { classNames } from '@/utils';
+import { ListBoxSort } from '@/components';
 
 type ApesProps = {};
 
@@ -23,6 +25,8 @@ interface MetaData {
 }
 const APE_YACHT_CLUB_OPENSEA_BASE_URL = 'https://opensea.io/assets/ethereum/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/';
 const MAX_APE_INDEX = 9999;
+const TOGGLE_CLASS = ' transform translate-x-5';
+const sortOptions = [{ name: 'ID' }, { name: 'Carbon Footprint' }, { name: 'Paid Amount' }];
 
 export default function ApesPage(props: ApesProps) {
   const provider = useProvider();
@@ -31,8 +35,9 @@ export default function ApesPage(props: ApesProps) {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [finalQuery, setFinalQuery] = useState<string>('');
   const [showFilteredHolders, setShowFilteredHolders] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [apeIndexes, setApeIndexes] = useState<number[]>([]);
+  const [toggle, setToggle] = useState<boolean>(false);
+  const [sortOption, setSortOption] = useState<{ name: string }>(sortOptions[0]);
 
   const filteredHolders = holders.filter((holder) => {
     if (searchQuery.startsWith('0x') && searchQuery.length > 2) {
@@ -124,12 +129,12 @@ export default function ApesPage(props: ApesProps) {
         <div className='w-full h-96 '>
           <Image src={apeYachtClubCover} alt='' className='object-cover h-96' />
         </div>
-        <div className='w-full h-16 bg-gray-200 sticky top-0 flex items-center justify-between px-16'>
-          <div className='w-1/2 mt-72'>
+        <div className='w-full h-16 bg-gray-200 sticky top-0 flex items-center justify-between px-16 shadow-md'>
+          <div className='w-3/5 mt-72'>
             <div className='w-full flex'>
               <input
-                className='w-full h-8 border-black border-2 bg-white rounded-l-md px-2 border-r-0 shadow-md focus:outline-none'
-                placeholder={`Search Bored Ape Yacht Club NFT's by holder addresses`}
+                className='w-full h-8  bg-white rounded-l-md px-2 border-r-0 shadow-md focus:outline-none'
+                placeholder={`Search Bored Ape Yacht Club NFT's by holder addresses, opensea url, or id`}
                 value={searchQuery}
                 onChange={(e) => {
                   fulfillApeIndexes();
@@ -140,7 +145,7 @@ export default function ApesPage(props: ApesProps) {
               />
               <button
                 type='button'
-                className='w-8 h-8 bg-white -left-5 rounded-r-md border-2 border-black border-l-0 shadow-md'
+                className='w-8 h-8 bg-white -left-5 rounded-r-md  shadow-md'
                 onClick={() => {
                   handleSearchButtonClick();
                 }}
@@ -148,30 +153,32 @@ export default function ApesPage(props: ApesProps) {
                 <AiOutlineSearch className='float-right mr-2' />
               </button>
             </div>
-            <ul className='w-full h-72 overflow-scroll px-1 flex flex-col rounded:lg border-black'>
-              {showFilteredHolders &&
-                filteredHolders.map((holder, index) => {
-                  //console.log(holder);
-                  return (
-                    <li key={index}>
-                      <button
-                        className='w-full px-4 h-8 bg-white border-2 border-black border-t-0 text-left text-gray-500 hover:bg-gray-300'
-                        onClick={() => {
-                          setShowFilteredHolders(false);
-                          setFinalQuery(holder);
-                        }}
-                      >
-                        {holder}
-                      </button>
-                    </li>
-                  );
-                })}
-            </ul>
+            <div className='w-11/12 h-72 overflow-scroll rounded-b-lg ml-1 mt-[3px]'>
+              <ul className='w-full h-auto overflow-scroll flex flex-col'>
+                {showFilteredHolders &&
+                  filteredHolders.map((holder, index) => {
+                    //console.log(holder);
+                    return (
+                      <li key={index}>
+                        <button
+                          className='w-full h-8 bg-white  border-t-2 text-left text-gray-500 hover:bg-gray-300 px-2'
+                          onClick={() => {
+                            setShowFilteredHolders(false);
+                            setFinalQuery(holder);
+                          }}
+                        >
+                          {holder}
+                        </button>
+                      </li>
+                    );
+                  })}
+              </ul>
+            </div>
           </div>
-          <div className='w-1/12 h-8 bg-black'></div>
-          <div className='w-1/12 h-8 bg-gray-600 text-center p-1'></div>
+          <ToggleButton enabled={toggle} setEnabled={setToggle} />
+          <ListBoxSort sortOptions={sortOptions} selected={sortOption} setSelected={setSortOption} />
         </div>
-        <ApesList apeIndexes={apeIndexes} />
+        <ApesList apeIndexes={apeIndexes} sortOption={sortOption} />
       </div>
     </>
   );

@@ -9,10 +9,9 @@ type Ape = {
 
 function ApeCard(props: ApeCardProps) {
   const { ape } = props;
-  //console.log(ape.image);
   return (
     <>
-      <div className='w-54 h-54 bg-black rounded-md border-2 border-black'>
+      <div className='w-40 h-40 bg-black rounded-md border-2 border-black'>
         <img src={ape.image} alt='' />
       </div>
     </>
