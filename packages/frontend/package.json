@@ -10,6 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@polybase/auth": "^0.3.36",
+    "@polybase/client": "^0.3.36",
+    "@polybase/react": "^0.3.36",
     "@rainbow-me/rainbowkit": "^0.8.1",
     "ethers": "^5.7.2",
     "next": "^13.1.6",

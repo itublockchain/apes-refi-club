@@ -7,5 +7,6 @@ import ApesList from './ApesList';
 import ListBoxSort from './ListBoxSort';
 import ToggleButton from './ToggleButton';
 import ApeCard from './ApeCard';
+import PolybaseInteraction from './hooks/PolybaseInteraction';
 
-export { Header, Footer, Layout, Loader, ApesCard, ApesList, ListBoxSort, ToggleButton, ApeCard };
+export { Header, Footer, Layout, Loader, ApeCard, ApesList, PolybaseInteraction, ApesCard,ListBoxSort, ToggleButton };

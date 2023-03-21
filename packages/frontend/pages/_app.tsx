@@ -14,6 +14,9 @@ import { CHAINS, PROVIDER } from '@/config';
 
 import { Layout } from '@/components';
 
+import { usePolybase, useCollection, PolybaseProvider, AuthProvider } from '@polybase/react';
+import { Polybase } from '@polybase/client';
+
 const { connectors } = getDefaultWallets({
   appName: 'apes-refi-club',
   chains: CHAINS,
@@ -35,9 +38,12 @@ const App = ({ Component, pageProps }: AppProps) => {
     fontStack: 'system',
   };
 
+  const polybase = new Polybase()
+
   if (!isMounted) return null;
   return (
-    <WagmiConfig client={wagmiClient}>
+    <PolybaseProvider polybase={polybase}>
+      <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider
         theme={{
           lightMode: lightTheme(RainbowKitConfig),
@@ -55,6 +61,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         </Layout>
       </RainbowKitProvider>
     </WagmiConfig>
+    </PolybaseProvider>
   );
 };
 
