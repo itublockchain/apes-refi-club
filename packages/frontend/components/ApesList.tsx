@@ -38,10 +38,14 @@ export default function ApesList(props: ApesListProps) {
   const initializeApes = async () => {
     const initialApes: ApeData[] = [];
     for (let index = 0; index < offset; index += 1) {
-      const metadata: MetaData = (await axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${apeIndexes[index]}`)).data;
-      const image = metadata.image.split('/');
-      const apeImage = `${IPFS_BASE_URL}${image[image.length - 1]}`;
-      initialApes.push({ id: apeIndexes[index], image: apeImage, paidCarbonPercantage: Math.floor(Math.random() * 100) });
+      try {
+        const metadata: MetaData = (await axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${apeIndexes[index]}`)).data;
+        const image = metadata.image.split('/');
+        const apeImage = `${IPFS_BASE_URL}${image[image.length - 1]}`;
+        initialApes.push({ id: apeIndexes[index], image: apeImage, paidCarbonPercantage: Math.floor(Math.random() * 100) });
+      } catch (err) {
+        console.log(err);
+      }
     }
     return initialApes;
   };
