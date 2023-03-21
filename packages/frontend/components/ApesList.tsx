@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { ApeCard, Loader } from '@/components';
+import { ApesCard, Loader } from '@/components';
 
 type ApesListProps = {
   apeIndexes: number[];
@@ -10,6 +10,7 @@ type ApesListProps = {
 };
 
 type ApeData = {
+  id: number;
   image: string;
   paidCarbonPercantage: number;
 };
@@ -37,10 +38,14 @@ export default function ApesList(props: ApesListProps) {
   const initializeApes = async () => {
     const initialApes: ApeData[] = [];
     for (let index = 0; index < offset; index += 1) {
-      const metadata: MetaData = (await axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${apeIndexes[index]}`)).data;
-      const image = metadata.image.split('/');
-      const apeImage = `${IPFS_BASE_URL}${image[image.length - 1]}`;
-      initialApes.push({ image: apeImage, paidCarbonPercantage: Math.floor(Math.random() * 100) });
+      try {
+        const metadata: MetaData = (await axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${apeIndexes[index]}`)).data;
+        const image = metadata.image.split('/');
+        const apeImage = `${IPFS_BASE_URL}${image[image.length - 1]}`;
+        initialApes.push({ id: apeIndexes[index], image: apeImage, paidCarbonPercantage: Math.floor(Math.random() * 100) });
+      } catch (err) {
+        console.log(err);
+      }
     }
     return initialApes;
   };
@@ -61,7 +66,7 @@ export default function ApesList(props: ApesListProps) {
         const metadata = response.data;
         const image = metadata.image.split('/');
         const apeImage = `${IPFS_BASE_URL}${image[image.length - 1]}`;
-        const newApe: ApeData = { image: apeImage, paidCarbonPercantage: Math.floor(Math.random() * 100) };
+        const newApe: ApeData = { id: apeIndexes[index], image: apeImage, paidCarbonPercantage: Math.floor(Math.random() * 100) };
         setApesData((prev: ApeData[]) => [...prev, newApe]);
       });
     }
@@ -81,7 +86,7 @@ export default function ApesList(props: ApesListProps) {
             //console.log(index);
             return (
               <li key={index}>
-                <ApeCard ape={ape} />
+                <ApesCard ape={ape} />
               </li>
             );
           })}

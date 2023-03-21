@@ -25,7 +25,6 @@ interface MetaData {
 }
 const APE_YACHT_CLUB_OPENSEA_BASE_URL = 'https://opensea.io/assets/ethereum/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/';
 const MAX_APE_INDEX = 9999;
-const TOGGLE_CLASS = ' transform translate-x-5';
 const sortOptions = [{ name: 'ID' }, { name: 'Carbon Footprint' }, { name: 'Paid Amount' }];
 
 export default function ApesPage(props: ApesProps) {
@@ -84,9 +83,13 @@ export default function ApesPage(props: ApesProps) {
     if (finalQuery) {
       if (ethers.utils.isAddress(finalQuery)) {
         setSearchQuery(finalQuery);
-        fetchApesOfHolder(finalQuery).then((tokenIndexes: number[]) => {
-          setApeIndexes(tokenIndexes);
-        });
+        try {
+          fetchApesOfHolder(finalQuery).then((tokenIndexes: number[]) => {
+            setApeIndexes(tokenIndexes);
+          });
+        } catch (err) {
+          console.log(err);
+        }
       } else if (finalQuery.startsWith(APE_YACHT_CLUB_OPENSEA_BASE_URL)) {
         const parsedOpenSeaUrl = finalQuery.split('/');
         setSearchQuery(parsedOpenSeaUrl[parsedOpenSeaUrl.length - 1]);
@@ -130,7 +133,7 @@ export default function ApesPage(props: ApesProps) {
           <Image src={apeYachtClubCover} alt='' className='object-cover h-96' />
         </div>
         <div className='w-full h-16 bg-gray-200 sticky top-0 flex items-center justify-between px-16 shadow-md'>
-          <div className='w-3/5 mt-72'>
+          <div className={classNames(filteredHolders.length ? 'mt-72' : 'mt-0', 'w-3/5')}>
             <div className='w-full flex'>
               <input
                 className='w-full h-8  bg-white rounded-l-md px-2 border-r-0 shadow-md focus:outline-none'
@@ -153,8 +156,13 @@ export default function ApesPage(props: ApesProps) {
                 <AiOutlineSearch className='float-right mr-2' />
               </button>
             </div>
-            <div className='w-11/12 h-72 overflow-scroll rounded-b-lg ml-1 mt-[3px]'>
-              <ul className='w-full h-auto overflow-scroll flex flex-col'>
+            <div
+              className={classNames(
+                filteredHolders.length ? 'visible' : 'hidden',
+                'w-11/12 h-72 overflow-hidden rounded-b-lg ml-1 mt-[3px]'
+              )}
+            >
+              <ul className='w-full h-auto overflow-x-hidden overflow-y-scroll flex flex-col'>
                 {showFilteredHolders &&
                   filteredHolders.map((holder, index) => {
                     //console.log(holder);
