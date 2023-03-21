@@ -55,7 +55,7 @@ contract ApesRefiClub is ERC721Enumerable, Ownable {
         uint256 paidPercentage = (baycTokenToPaidDebt[baycTokenId] * 100) / carbonDebt;
         if (paidPercentage >= 100) {
             safeTransferFrom(address(this), bayc.ownerOf(baycTokenId), baycTokenId);
-            stablecoin.transfer(daoAddress, carbonDebt);
+            ApeCoin.transfer(daoAddress, carbonDebt);
         }
 
         emit CarbonDebtPaidPercentage(bayc.ownerOf(baycTokenId), baycTokenId, paidPercentage);
