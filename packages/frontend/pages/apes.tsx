@@ -162,7 +162,7 @@ export default function ApesPage(props: ApesProps) {
                 'w-11/12 h-72 overflow-hidden rounded-b-lg ml-1 mt-[3px]'
               )}
             >
-              <ul className='w-full h-auto overflow-scroll flex flex-col'>
+              <ul className='w-full h-auto overflow-x-hidden overflow-y-scroll flex flex-col'>
                 {showFilteredHolders &&
                   filteredHolders.map((holder, index) => {
                     //console.log(holder);
