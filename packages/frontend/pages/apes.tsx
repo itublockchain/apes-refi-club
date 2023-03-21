@@ -83,9 +83,13 @@ export default function ApesPage(props: ApesProps) {
     if (finalQuery) {
       if (ethers.utils.isAddress(finalQuery)) {
         setSearchQuery(finalQuery);
-        fetchApesOfHolder(finalQuery).then((tokenIndexes: number[]) => {
-          setApeIndexes(tokenIndexes);
-        });
+        try {
+          fetchApesOfHolder(finalQuery).then((tokenIndexes: number[]) => {
+            setApeIndexes(tokenIndexes);
+          });
+        } catch (err) {
+          console.log(err);
+        }
       } else if (finalQuery.startsWith(APE_YACHT_CLUB_OPENSEA_BASE_URL)) {
         const parsedOpenSeaUrl = finalQuery.split('/');
         setSearchQuery(parsedOpenSeaUrl[parsedOpenSeaUrl.length - 1]);
@@ -155,10 +159,10 @@ export default function ApesPage(props: ApesProps) {
             <div
               className={classNames(
                 filteredHolders.length ? 'visible' : 'hidden',
-                'w-11/12 h-72 overflow-scroll rounded-b-lg ml-1 mt-[3px]'
+                'w-11/12 h-72 overflow-hidden rounded-b-lg ml-1 mt-[3px]'
               )}
             >
-              <ul className='w-full h-auto overflow-scroll flex flex-col'>
+              <ul className='w-full h-auto overflow-x-hidden overflow-y-scroll flex flex-col'>
                 {showFilteredHolders &&
                   filteredHolders.map((holder, index) => {
                     //console.log(holder);
