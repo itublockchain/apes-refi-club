@@ -159,7 +159,7 @@ export default function ApesPage(props: ApesProps) {
             <div
               className={classNames(
                 filteredHolders.length ? 'visible' : 'hidden',
-                'w-11/12 h-72 overflow-scroll rounded-b-lg ml-1 mt-[3px]'
+                'w-11/12 h-72 overflow-hidden rounded-b-lg ml-1 mt-[3px]'
               )}
             >
               <ul className='w-full h-auto overflow-scroll flex flex-col'>
