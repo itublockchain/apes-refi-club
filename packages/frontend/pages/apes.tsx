@@ -83,9 +83,13 @@ export default function ApesPage(props: ApesProps) {
     if (finalQuery) {
       if (ethers.utils.isAddress(finalQuery)) {
         setSearchQuery(finalQuery);
-        fetchApesOfHolder(finalQuery).then((tokenIndexes: number[]) => {
-          setApeIndexes(tokenIndexes);
-        });
+        try {
+          fetchApesOfHolder(finalQuery).then((tokenIndexes: number[]) => {
+            setApeIndexes(tokenIndexes);
+          });
+        } catch (err) {
+          console.log(err);
+        }
       } else if (finalQuery.startsWith(APE_YACHT_CLUB_OPENSEA_BASE_URL)) {
         const parsedOpenSeaUrl = finalQuery.split('/');
         setSearchQuery(parsedOpenSeaUrl[parsedOpenSeaUrl.length - 1]);
