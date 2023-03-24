@@ -26,16 +26,14 @@ export default function Ape() {
   const { id } = router.query;
   let image;
 
-  useEffect(() => {
-    console.log(id);
-  }, [id]);
+  useEffect(() => {}, [id]);
 
   return (
     <>
       <div className='w-screen h-screen'>
         {id ? (
           <div>
-            <ApeCard id={id[0]} />
+            <ApeCard id={id} />
           </div>
         ) : (
           <Loader loaderColor='blue' loaderText='Loading' />

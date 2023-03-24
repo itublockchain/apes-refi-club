@@ -12,7 +12,6 @@ type Ape = {
 
 function ApesCard(props: ApesCardProps) {
   const { ape } = props;
-  console.log(ape.image);
   return (
     <Link href={`ape/${ape.id}`}>
       <div className='w-40 h-40 bg-black rounded-md border-2 border-black'>

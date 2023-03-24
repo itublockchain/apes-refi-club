@@ -1,0 +1,293 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_proposalID",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_requestedFund",
+          "type": "uint256"
+        }
+      ],
+      "name": "createProposal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "proposalID",
+          "type": "bytes32"
+        }
+      ],
+      "name": "executeProposal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_nftAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_ApeCoinAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "proposalID",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "requestedFund",
+          "type": "uint256"
+        }
+      ],
+      "name": "NewProposal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "proposalID",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "executor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "requestedFund",
+          "type": "uint256"
+        }
+      ],
+      "name": "ProposalApproved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "proposalID",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "executor",
+          "type": "address"
+        }
+      ],
+      "name": "ProposalRejected",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "proposalID",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "voter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "votePower",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "vote",
+          "type": "bool"
+        }
+      ],
+      "name": "Voted",
+      "type": "event"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "vote",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "proposalID",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "NFTsToVote",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "voteTheProposal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    },
+    {
+      "inputs": [],
+      "name": "activeRequestedFund",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "numberOfProposal",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "proposalExists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "proposals",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "yesVotes",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "noVotes",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "proposalID",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bool",
+          "name": "executed",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "requestedFund",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}
