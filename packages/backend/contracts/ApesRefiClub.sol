@@ -4,61 +4,58 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract ApesRefiClub is ERC721Enumerable, Ownable {
+contract ApesRefiClub is ERC721Enumerable, Ownable, IERC721Receiver {
     IERC721 public bayc;
     IERC20 public ApeCoin;
     address public daoAddress;
     bytes32 public merkleRoot;
 
-    mapping(uint256 => uint256) public baycTokenToCarbonDebt;
-    mapping(uint256 => uint256) public baycTokenToPaidDebt;
+    mapping(uint256 => bool) private _claimedTokens;
 
-    event CarbonDebtPaidPercentage(address owner, uint256 indexed baycTokenId, uint256 percentage);
+
+    event Claimed(uint256 indexed baycTokenId, address indexed owner);
 
     constructor(
         address _baycAddress,
-        address _stablecoinAddress,
+        address _ApeCoinAddress,
         address _daoAddress,
-        bytes32 _merkleRoot,
-        uint256[] memory tokenIds
+        bytes32 _merkleRoot
     ) ERC721("ApesRefiClub", "ARC") {
         bayc = IERC721(_baycAddress);
         ApeCoin = IERC20(_ApeCoinAddress);
         daoAddress = _daoAddress;
         merkleRoot = _merkleRoot;
-
-        mintApesRefiClub(tokenIds);
     }
 
-    function mintApesRefiClub(uint256[] memory tokenIds) private onlyOwner {
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            _mint(address(this), tokenIds[i]);
-        }
+    function verify(bytes32[] memory proof, bytes32 leaf) public view returns (bool) {
+        return MerkleProof.verify(proof, merkleRoot, leaf);
     }
 
-    function payCarbonDebt(uint256 baycTokenId, uint256 amount, bytes32[] calldata merkleProof) external {
-        require(bayc.ownerOf(baycTokenId) != address(0), "Invalid BAYC token ID");
-        require(amount > 0, "Amount must be greater than 0");
+    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
 
-        bytes32 node = keccak256(abi.encodePacked(baycTokenId, amount));
-        require(MerkleProof.verify(merkleProof, merkleRoot, node), "Invalid Merkle proof");
+    
 
-        ApeCoin.transferFrom(msg.sender, address(this), amount);
-        baycTokenToPaidDebt[baycTokenId] += amount;
+    function payCarbonDebt(uint256 baycTokenId, uint256 carbonDebt, bytes32[] memory proof) external {
+    
+        require(carbonDebt > 0, "Amount must be greater than 0");
+        require(!_claimedTokens[baycTokenId], "BAYC token already claimed");
 
-        uint256 carbonDebt = baycTokenToCarbonDebt[baycTokenId];
-        require(carbonDebt > 0, "Carbon debt is not set");
 
-        uint256 paidPercentage = (baycTokenToPaidDebt[baycTokenId] * 100) / carbonDebt;
-        if (paidPercentage >= 100) {
-            safeTransferFrom(address(this), bayc.ownerOf(baycTokenId), baycTokenId);
-            ApeCoin.transfer(daoAddress, carbonDebt);
-        }
+        bytes32 leaf = keccak256(abi.encodePacked(baycTokenId, carbonDebt));
 
-        emit CarbonDebtPaidPercentage(bayc.ownerOf(baycTokenId), baycTokenId, paidPercentage);
+        require(verify(proof, leaf), "Invalid proof");
+
+        ApeCoin.transferFrom(msg.sender, daoAddress, carbonDebt);
+
+        _claimedTokens[baycTokenId] = true;
+
+        _safeMint(bayc.ownerOf(baycTokenId), baycTokenId);
+        emit Claimed(baycTokenId, msg.sender);
     }
 
     function _baseURI() internal pure override returns (string memory) {
@@ -70,7 +67,8 @@ contract ApesRefiClub is ERC721Enumerable, Ownable {
 
         string memory baseURI = _baseURI();
         return bytes(baseURI).length > 0
-            ? string(abi.encodePacked(baseURI, tokenId.toString(), "/metadata"))
+            ? string(abi.encodePacked(baseURI, "metadata/", tokenId))
             : "";
     }
 }
+    
