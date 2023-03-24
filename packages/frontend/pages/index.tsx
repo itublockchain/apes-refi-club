@@ -1,10 +1,10 @@
-import { PolybaseInteraction } from '@/components'
+import { useDatabase } from "@/components";
 
 export default function Home() {
-  
+  const reference = useDatabase("ApesRefiClubNFTs");
+
   return (
     <>
-    <PolybaseInteraction></PolybaseInteraction>
       <div className="p-10">
         <h1 className="font-bold text-5xl text-center">Apes ReFi Club</h1>
         <div className="py-5">

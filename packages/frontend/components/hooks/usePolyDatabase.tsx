@@ -1,7 +1,7 @@
 import { Polybase } from "@polybase/client";
 import { usePolybase } from "@polybase/react";
 
-export default function PolybaseInteraction() {
+export default function usePolyDatabase() {
   const polybase = usePolybase();
 
   const db = new Polybase({
