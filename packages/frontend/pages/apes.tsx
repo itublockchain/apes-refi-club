@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import React from 'react';
 import { ApesList, Loader, ToggleButton } from '@/components';
 import Image from 'next/image';
-import apeYachtClubCover from '../public/apeYachtClubCover.png';
+import apeYachtClubCover from '../public/ape_yacht_club_cover.png';
 import { AiOutlineSearch } from 'react-icons/ai';
 import axios from 'axios';
 import { ALCHEMY_KEY, ALCHEMY_MAINNET_BASEURL, BORED_APE_YACHT_CLUB_ADDRESS } from '@/config';

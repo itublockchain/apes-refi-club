@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { AppProps } from 'next/app';
 import NextHead from 'next/head';
 import '../styles/globals.css';
-
+import 'react-toastify/dist/ReactToastify.css';
 import { createClient, WagmiConfig } from 'wagmi';
 
 import '@rainbow-me/rainbowkit/styles.css';
@@ -13,6 +13,7 @@ import { useIsMounted } from '../hooks';
 import { CHAINS, PROVIDER } from '@/config';
 
 import { Layout } from '@/components';
+import { ToastContainer } from 'react-toastify';
 
 const { connectors } = getDefaultWallets({
   appName: 'apes-refi-club',
@@ -45,6 +46,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         }}
         chains={CHAINS}
       >
+        <ToastContainer />
         <NextHead>
           <title>Apes Refi Club</title>
         </NextHead>

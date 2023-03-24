@@ -14,7 +14,7 @@ interface ITab {
 export const tabs: ITab[] = [
   { name: 'Home', href: '/', active: true },
   { name: 'Apes', href: '/apes', active: false },
-  { name: 'Governance', href: '/govern', active: false },
+  { name: 'DAO', href: '/dao', active: false },
 ];
 
 function isCurrent(tab: ITab, router: NextRouter): boolean {
