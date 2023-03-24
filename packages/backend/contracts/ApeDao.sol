@@ -120,8 +120,11 @@ contract ApeDao {
         Proposal storage proposal = proposals[proposalIndex];
         require(!proposal.executed,"Proposal is already executed");
         proposal.executed = true;
-        (bool success,)= proposal.to.call{value: proposal.totalFund}("");
+        (bool success,)= proposal.to.call{value: proposal.totalFund+treasuryBalance}("");
         require(success,"Transfer failed");
+        proposal.totalFund = 0;
+        treasuryBalance = 0;
+
         emit ProposalExecuted(proposalIndex, msg.sender, proposal.to, proposal.totalFund+treasuryBalance);
 
     }
