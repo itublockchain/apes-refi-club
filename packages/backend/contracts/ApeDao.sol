@@ -13,6 +13,7 @@ contract ApeDao {
     event ProposalRejected(bytes32 indexed proposalID, address executor);
 
     uint256 constant MINIMUM_REQUESTABLE = 10;
+    uint256 constant MINIMUM_WAIT_DAY = 7;
 
     // Defines the data structure of a proposal.
     struct Proposal{
@@ -31,9 +32,9 @@ contract ApeDao {
     }
 
     mapping(bytes32 => Proposal) public proposals;
+    mapping(bytes32 => bool) public proposalExists;
     uint public numberOfProposal;
-    uint public treasuryBalance;
-    uint public availableTreasury;
+    uint public activeRequestedFund;
 
     // Defines the token smart contract (ERC721) according to which the proposals will be managed and provides a reference to it.
     IERC721 ARClubNFT;
@@ -51,6 +52,18 @@ contract ApeDao {
         _;
     }
 
+    // Checks the proposal not existed
+    modifier existedProposalOnly(bytes32 _proposalID) {
+        require(proposalExists[_proposalID], "Proposal doesn't exist");
+        _;
+    }
+
+    // Checks if the proposal existed already
+    modifier nonExistedProposalOnly(bytes32 _proposalID) {
+        require(!proposalExists[_proposalID], "This proposal already exist");
+        _;
+    }
+
     // An access modifier that checks if the proposal is still active.
     modifier activeProposal(bytes32 _proposalID){
         require(block.timestamp < proposals[_proposalID].deadline);
@@ -59,35 +72,32 @@ contract ApeDao {
 
     // An access modifier that checks whether the proposal has been successful.
     modifier finishedProposalOnly(bytes32 _proposalID){
-        require(block.timestamp > proposals[_proposalID].deadline,"Wait for the deadline");
+        require(block.timestamp >= proposals[_proposalID].deadline,"Wait for the deadline");
         _;
     }
 
     // Creates a new proposal with the specified parameters.
-    function receiveApeCoins(uint _amount) public {
-        require(ApeCoin.transferFrom(msg.sender, address(this), _amount), "Transfer failed");
-        treasuryBalance += _amount;
-        availableTreasury += _amount;
-    }
-
-    function createProposal(address _to, bytes32 _proposalID, uint _requestedFund) external {
-        if(availableTreasury > MINIMUM_REQUESTABLE){
-            require(_requestedFund <= availableTreasury / 2, 'Requested amount is too high');
+    function createProposal(address _to, bytes32 _proposalID, uint _requestedFund) nonExistedProposalOnly(_proposalID) external {
+        require(_requestedFund > 0, "Requsted fund must be higher than 0");
+        uint ApeCoinBalance = ApeCoin.balanceOf(address(this));
+        if((ApeCoinBalance - activeRequestedFund) > MINIMUM_REQUESTABLE){
+            require(_requestedFund <= (ApeCoinBalance - activeRequestedFund) / 2, 'Requested amount is too high');
         }
         else {
-            require(_requestedFund <= availableTreasury, 'Requested amount is too high');
+            require(_requestedFund <= (ApeCoinBalance - activeRequestedFund), 'Requested amount is too high');
         }
         Proposal storage proposal = proposals[_proposalID];
         proposal.to = _to;
         proposal.proposalID = _proposalID;
-        proposal.deadline = block.timestamp + 7 days;
+        proposal.deadline = block.timestamp + MINIMUM_WAIT_DAY * 1 days;
         numberOfProposal ++;
-        availableTreasury -= _requestedFund;
+        activeRequestedFund += _requestedFund; 
+        proposalExists[_proposalID] = true;
         emit NewProposal(_proposalID, _to, proposal.deadline, _requestedFund);
     }
 
     // Cast votes for the proposal.
-    function voteTheProposal(bool vote, bytes32 proposalID, uint[] memory NFTsToVote) external ARCHolderOnly activeProposal(proposalID) {
+    function voteTheProposal(bool vote, bytes32 proposalID, uint[] memory NFTsToVote) external ARCHolderOnly existedProposalOnly(proposalID) activeProposal(proposalID) {
         uint votePover = NFTsToVote.length;
         require(votePover > 0,"You need some nft to gain vote power");
         Proposal storage proposal = proposals[proposalID];
@@ -107,20 +117,19 @@ contract ApeDao {
     }
 
     // Executes the proposal and sends the funds.
-    function executeProposal(bytes32 proposalID) external finishedProposalOnly(proposalID) {
+    function executeProposal(bytes32 proposalID) external finishedProposalOnly(proposalID) existedProposalOnly(proposalID) {
         Proposal storage proposal = proposals[proposalID];
         require(!proposal.executed,"Proposal is already executed");
         if(proposal.yesVotes > proposal.noVotes) {
             bool success = ApeCoin.transfer(proposal.to, proposal.requestedFund);
             require(success,"Transfer failed");
             proposal.executed = true;
-            treasuryBalance -= proposal.requestedFund;
             emit ProposalApproved(proposalID, msg.sender, proposal.to, proposal.requestedFund);
         }
         else{
-            availableTreasury += proposal.requestedFund;
             emit ProposalRejected(proposalID, msg.sender);
         }
+        activeRequestedFund -= proposal.requestedFund; 
     }
 
 
