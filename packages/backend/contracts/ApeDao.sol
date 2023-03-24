@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "contracts/scalingEth/erc721a.sol";
+//import "contracts/scalingEth/erc721a.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 // This contract demonstrates a basic DAO (Decentralized Autonomous Organization) system called ApeDao.
 
