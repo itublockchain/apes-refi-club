@@ -27,12 +27,12 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
     string public collectionOwnerPubKey;
     string public collectionHeader;
 
-    bool public isMintedDry;
     uint public deployedTime;
 
     mapping(uint256 => bool) private _verifiedTokens;
 
-    event Claimed(uint256 indexed baycTokenId, address indexed owner);
+
+    event CarbonDebtPaid(uint256 indexed baycTokenId, address indexed owner);
 
     constructor(
         address _baycAddress,
@@ -50,7 +50,6 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
         unverifiedCollectionName = _unverifiedCollectionName;
         collectionOwnerPubKey = _collectionOwnerPubKey;
         collectionHeader = _collectionHeader;
-        safeMint();
         deployedTime = block.timestamp;
     }
 
@@ -60,11 +59,6 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
     }
 
     // NEED TO CONTROL
-    function safeMint() public {
-        for (uint i; i < 10000; i++) {
-            _safeMint(address(this), i);
-        }
-    }
 
     function verify(
         bytes32[] memory proof,
@@ -98,19 +92,16 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
             );
         }
         //*
-        bytes32 leaf = keccak256(abi.encodePacked(baycTokenId, carbonDebt));
+
+
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(baycTokenId, carbonDebt))));
 
         require(verify(proof, leaf), "Invalid proof");
 
         ApeCoin.transferFrom(msg.sender, daoAddress, carbonDebt);
         _verifiedTokens[baycTokenId] = true;
-        //added
-        require(
-            ownerOf(baycTokenId) == address(this),
-            "This contract does not own the BAYC NFT"
-        );
-        safeTransferFrom(address(this), msg.sender, baycTokenId);
-        //*
+        _safeMint(msg.sender, baycTokenId);
+        
     }
 
     function _baseURI() internal view override returns (string memory) {
@@ -149,7 +140,7 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
         uint256 tokenId
     ) public view virtual override returns (string memory) {
         require(
-            _exists(tokenId),
+            tokenId < 10000,
             "ERC721Metadata: URI query for nonexistent token"
         );
         string memory baseURI = _baseURI();

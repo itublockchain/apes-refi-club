@@ -25,7 +25,7 @@ interface MetaData {
   attributes: Attribute[];
 }
 
-const MAX_LOAD_ONCE = 30;
+const MAX_LOAD_ONCE = 20;
 const IPFS_BASE_URL = 'https://ipfs.io/ipfs/';
 const APE_YACHT_CLUB_BASE = 'QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/';
 

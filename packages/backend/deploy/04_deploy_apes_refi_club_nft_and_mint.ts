@@ -42,7 +42,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log('New carbon emission items creating...');
   for (let i = 0; i < unverifieds.length; i += 1) {
     const unverified = unverifieds[i].data;
-    const txCount: number = Math.floor(Math.random() * 10);
+    const txCount: number = Math.floor(Math.random() * 9 + 1);
     await carbonCollectionReferance.create([
       unverified.id,
       txCount * CARBON_COEFFICENT,
@@ -86,10 +86,10 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const mockApeYachtClub = await hre.ethers.getContract('MockBoredApeYachtClub');
 
   let id = 1;
-  for (let accountIndex = 1; accountIndex <= 3; accountIndex += 1) {
+  for (let accountIndex = 1; accountIndex <= 10; accountIndex += 10) {
     let balance = Number(await mockApeYachtClub.balanceOf(signers[accountIndex].address));
     while (balance--) {
-      await apesRefiClubNFT.safeMint(signers[accountIndex].address, BigNumber.from(id));
+      //await apesRefiClubNFT.safeMint(signers[accountIndex].address, BigNumber.from(id));
       console.log(await apesRefiClubNFT.tokenURI(BigNumber.from(id)), '\n');
       id += 1;
     }

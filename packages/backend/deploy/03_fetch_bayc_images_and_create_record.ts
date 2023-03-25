@@ -42,22 +42,22 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   console.log('New collection items are creating...');
-  for (let accountIndex = 1; accountIndex <= 3; accountIndex += 1) {
+  for (let accountIndex = 1; accountIndex <= 10; accountIndex += 1) {
     let balance = Number(await mockApeYachtClub.balanceOf(signers[accountIndex].address));
     while (balance > 0) {
       try {
         const metadata = (await axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${nftId}`)).data;
         const image = metadata.image;
-        validNfts.push({ image: image, id: validNfts.length + 1 });
+        validNfts.push({ image: image, id: validNfts.length });
         await unverifiedCollectionReferance.create([
-          String(validNfts.length),
-          String(validNfts.length),
+          String(validNfts.length - 1),
+          String(validNfts.length - 1),
           image,
           `Unverified #${validNfts.length}`,
         ]);
         await verifiedCollectionReferance.create([
-          String(validNfts.length),
-          String(validNfts.length),
+          String(validNfts.length - 1),
+          String(validNfts.length - 1),
           image,
           `Verified #${validNfts.length}`,
         ]);

@@ -111,6 +111,7 @@ function ApeCard(props: ApeCardProps) {
   useEffect(() => {
     if (id) {
       boredApeYachtClubContract?.ownerOf(id).then((owner: string) => {
+        console.log(owner);
         setHolder(owner);
       });
       if (id) {

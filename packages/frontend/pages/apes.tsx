@@ -24,7 +24,7 @@ interface MetaData {
   attributes: Attribute[];
 }
 const APE_YACHT_CLUB_OPENSEA_BASE_URL = 'https://opensea.io/assets/ethereum/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/';
-const MAX_APE_INDEX = 9999;
+const MAX_APE_INDEX = 54;
 const sortOptions = [{ name: 'ID' }, { name: 'Carbon Footprint' }, { name: 'Paid Amount' }];
 
 export default function ApesPage(props: ApesProps) {
