@@ -11,13 +11,12 @@ function FundRequestForm() {
   const [description, setDescription] = useState<string>('');
   const [account, setAccount] = useState<string>('');
   const [desiredAmount, setAmount] = useState<number>();
-  const [endDate, setEndDate] = useState<number>();
 
   const owner = useAccount();
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!/^(http(s):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/g.test(website)) {
-      toast.error('invalid website url it must starts with http or https', {
+      toast.error('Invalid website url!', {
         position: 'top-right',
         autoClose: 5000,
         hideProgressBar: false,
@@ -30,7 +29,7 @@ function FundRequestForm() {
       return;
     }
     if (desiredAmount! <= 0) {
-      toast.error('desired amount must be greater than 0', {
+      toast.error('Requested fund must be greater than 0!', {
         position: 'top-right',
         autoClose: 5000,
         hideProgressBar: false,
@@ -43,20 +42,7 @@ function FundRequestForm() {
       return;
     }
     if (!isAddress(account!)) {
-      toast.error('invalid account', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'light',
-      });
-      return;
-    }
-    if (endDate! <= Number(new Date()) / 1000) {
-      toast.error('invalid end date', {
+      toast.error('Invalid account!', {
         position: 'top-right',
         autoClose: 5000,
         hideProgressBar: false,
@@ -69,7 +55,7 @@ function FundRequestForm() {
       return;
     }
     if (!owner) {
-      toast.error('you must connect to with metamask to send a request', {
+      toast.error('You must connect to with metamask to send a Request', {
         position: 'top-right',
         autoClose: 5000,
         hideProgressBar: false,
@@ -81,105 +67,97 @@ function FundRequestForm() {
       });
       return;
     }
-    createProposal(name, owner.address!, description, website, endDate!, desiredAmount!, account);
+    createProposal(name, owner.address!, description, website, desiredAmount!, account);
   };
 
   return (
-    <div className='w-2/3 h-full p-10 shadow-md'>
-      <span className='font-bold text-lg'>Request funds for your decarbonization project</span>
-      <form className='w-full p-2 flex flex-col flex-wrap' onSubmit={handleSubmit}>
-        <div className=' flex flex-row flex-wrap justify-center'>
-          <div className='w-full md:w-2/3'>
-            <div className='flex flex-wrap -mx-3 mb-6'>
-              <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
-                <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Name</label>
-                <input
-                  value={name}
-                  className='appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-1 leading-tight focus:outline-none focus:bg-white'
-                  type='text'
-                  placeholder='My ReFi Project'
-                  required
-                  onChange={(e) => {
-                    setName(e.target.value);
-                  }}
-                />
+    <div className='w-full p-6'>
+      <div className='w-full h-full p-10 shadow-md'>
+        <span className='font-bold text-lg'>Request funds for your decarbonization project</span>
+        <form className='w-full p-2 flex flex-col flex-wrap' onSubmit={handleSubmit}>
+          <div className=' flex flex-row flex-wrap justify-center'>
+            <div className='w-full md:w-2/3'>
+              <div className='flex flex-wrap -mx-3 mb-6'>
+                <div className='w-full md:w-1/2 px-3 mb-6 md:mb-0'>
+                  <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Name</label>
+                  <input
+                    value={name}
+                    className='appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-1 leading-tight focus:outline-none focus:bg-white'
+                    type='text'
+                    placeholder='My ReFi Project'
+                    required
+                    onChange={(e) => {
+                      setName(e.target.value);
+                    }}
+                  />
+                </div>
+                <div className='w-full md:w-1/2 px-3'>
+                  <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Website</label>
+                  <input
+                    value={website}
+                    className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mb-1'
+                    type='text'
+                    placeholder='https://decarbonization-project.com'
+                    required
+                    onChange={(e) => {
+                      setWebsite(e.target.value);
+                    }}
+                  />
+                </div>
               </div>
-              <div className='w-full md:w-1/2 px-3'>
-                <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Website</label>
-                <input
-                  value={website}
-                  className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mb-1'
-                  type='text'
-                  placeholder='https://decarbonization-project.com'
-                  required
-                  onChange={(e) => {
-                    setWebsite(e.target.value);
-                  }}
-                />
+              <div className='flex flex-wrap -mx-3 mb-6'>
+                <div className='w-full px-3'>
+                  <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Project Account</label>
+                  <input
+                    value={account}
+                    className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
+                    type='text'
+                    placeholder='0xb58a6827fC242A2410845B200DEe9AeB75212d55'
+                    onChange={(e) => {
+                      setAccount(e.target.value);
+                    }}
+                  />
+                  <p className='text-gray-600 text-xs italic mt-1 px-1'>Ape Coins will be sent to this account</p>
+                </div>
+              </div>
+              <div className='flex flex-wrap -mx-3 mb-2'>
+                <div className='w-full md:w-1/3 px-3 mb-6 md:mb-0'>
+                  <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>
+                    Requested Fund Amount
+                  </label>
+                  <input
+                    value={desiredAmount}
+                    className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
+                    type='number'
+                    required
+                    onChange={(e) => {
+                      setAmount(parseInt(e.target.value));
+                    }}
+                  />
+                  <p className='text-gray-600 text-xs italic px-1 mt-1'>Requested fund amount in terms of ape coin</p>
+                </div>
               </div>
             </div>
-            <div className='flex flex-wrap -mx-3 mb-6'>
-              <div className='w-full px-3'>
-                <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Project Account</label>
-                <input
-                  value={account}
-                  className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-                  type='text'
-                  placeholder='0xb58a6827fC242A2410845B200DEe9AeB75212d55'
-                  onChange={(e) => {
-                    setAccount(e.target.value);
-                  }}
-                />
-                <p className='text-gray-600 text-xs italic mt-1 px-1'>Ape Coins will be sent to this account</p>
-              </div>
-            </div>
-            <div className='flex flex-wrap -mx-3 mb-2'>
-              <div className='w-full md:w-1/3 px-3 mb-6 md:mb-0'>
-                <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Desired Amount</label>
-                <input
-                  value={desiredAmount}
-                  className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-                  type='number'
-                  required
-                  onChange={(e) => {
-                    setAmount(parseInt(e.target.value));
-                  }}
-                />
-                <p className='text-gray-600 text-xs italic px-1 mt-1'>Requested fund amount in terms of ape coin</p>
-              </div>
-
-              <div className='w-full md:w-1/3 px-3 mb-6 md:mb-0'>
-                <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>End Date</label>
-                <input
-                  className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-                  type='date'
-                  onChange={(e) => {
-                    setEndDate(Number(new Date(e.target.value)) / 1000);
-                  }}
-                />
-                <p className='text-gray-600 text-xs italic px-1 mt-1'>Voting period end date</p>
-              </div>
+            <div className='w-full md:w-1/3 h-full mb-6 md:mb-0 md:px-4'>
+              <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Description</label>
+              <textarea
+                value={description}
+                rows={14}
+                className='block w-full text-sm bg-gray-200 h-7/12 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
+                placeholder='Describe your project in a few words'
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                }}
+              ></textarea>
             </div>
           </div>
-          <div className='w-full md:w-1/3 h-full mb-6 md:mb-0 md:px-4'>
-            <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>Description</label>
-            <textarea
-              value={description}
-              rows={14}
-              className='block w-full text-sm bg-gray-200 h-7/12 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-              placeholder='Describe your project in a few words'
-              onChange={(e) => {
-                setDescription(e.target.value);
-              }}
-            ></textarea>
+          <div className='flex justify-center'>
+            <button type='submit' className='w-2/3 h-10 shadow-sm bg-gray-200 hover:bg-gray-400 rounded-md border-0 mt-2'>
+              Submit
+            </button>
           </div>
-        </div>
-        <div className='flex justify-center'>
-          <button type='submit' className='w-2/3 h-10 shadow-sm bg-gray-200 hover:bg-gray-400 rounded-md border-0 mt-2'>
-            Submit
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

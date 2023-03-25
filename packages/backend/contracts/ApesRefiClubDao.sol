@@ -5,10 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 // This contract demonstrates a basic DAO (Decentralized Autonomous Organization) system called ApeDao.
 
-contract ApeDao {
+contract ApesRefiClubDao {
 
     event NewProposal(bytes32 proposalID, address to, uint deadline, uint requestedFund);
-    event Voted(bytes32 indexed proposalID, address indexed voter, uint votePower, bool vote);
+    event Voted(bytes32 indexed proposalID, address indexed voter, bool vote);
     event ProposalApproved(bytes32 indexed proposalID, address executor, address to, uint requestedFund);
     event ProposalRejected(bytes32 indexed proposalID, address executor);
 
@@ -97,22 +97,18 @@ contract ApeDao {
     }
 
     // Cast votes for the proposal.
-    function voteTheProposal(bool vote, bytes32 proposalID, uint[] memory NFTsToVote) external ARCHolderOnly existedProposalOnly(proposalID) activeProposal(proposalID) {
-        uint votePover = NFTsToVote.length;
-        require(votePover > 0,"You need some nft to gain vote power");
+    function voteTheProposal(bool vote, bytes32 proposalID, uint nftID) external ARCHolderOnly existedProposalOnly(proposalID) activeProposal(proposalID) {
         Proposal storage proposal = proposals[proposalID];
-        for(uint i; i< votePover; i++){
-            require(ARClubNFT.ownerOf(NFTsToVote[i]) == msg.sender,"You are not the owner");
-            require(!proposal.votes[NFTsToVote[i]],"Already voted");
-            proposal.votes[NFTsToVote[i]] = true;
-        }
+        require(ARClubNFT.ownerOf(nftID) == msg.sender,"You are not the owner");
+        require(!proposal.votes[nftID],"Already voted");
+        proposal.votes[nftID] = true;
         if(vote){
-            proposal.yesVotes += votePover;
+            proposal.yesVotes += 1;
         }
         else{
-            proposal.noVotes += votePover;
+            proposal.noVotes += 1;
         }
-        emit Voted(proposalID, msg.sender, votePover, vote);
+        emit Voted(proposalID, msg.sender, vote);
 
     }
 

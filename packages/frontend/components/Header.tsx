@@ -2,6 +2,8 @@ import { NextRouter, useRouter } from 'next/router';
 import { classNames } from '@/utils';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Link from 'next/link';
+import apeLogo from '../public/apelogo.png';
+import Image from 'next/image';
 
 type HeaderProps = {};
 
@@ -26,9 +28,12 @@ export default function Header(props: HeaderProps) {
 
   return (
     <>
-      <div className='p-3 bg-gray-800 flex items-center justify-between shadow-sm shadow-gray-800 z-10'>
+      <div
+        className='py-1 px-4 flex items-center justify-between shadow-sm shadow-[#0f766e] z-10'
+        style={{ backgroundColor: '#0f766e' }}
+      >
         <div className='float-left flex items-center'>
-          <div className='rounded-full w-12 h-12 bg-slate-50'></div>
+          <Image src={apeLogo} alt='' className='rounded-full w-20 h-20' />
         </div>
         <ul className='flex items-center justify-center gap-8'>
           {tabs.map((tab: ITab) => {

@@ -3,7 +3,7 @@ type FooterProps = {};
 export default function Footer(props: FooterProps) {
   return (
     <>
-      <div className='p-20 bg-gray-800 flex items-center'></div>
+      <div className='p-20 flex items-center' style={{ backgroundColor: '#0f766e' }}></div>
     </>
   );
 }
