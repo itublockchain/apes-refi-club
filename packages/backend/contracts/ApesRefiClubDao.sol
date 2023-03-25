@@ -3,7 +3,13 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+
 // This contract demonstrates a basic DAO (Decentralized Autonomous Organization) system called ApeDao.
+
+interface IPUSHCommInterface {
+    function sendNotification(address _channel, address _recipient, bytes calldata _identity) external;
+}
 
 contract ApesRefiClubDao {
 
@@ -11,9 +17,15 @@ contract ApesRefiClubDao {
     event Voted(bytes32 indexed proposalID, address indexed voter, bool vote);
     event ProposalApproved(bytes32 indexed proposalID, address executor, address to, uint requestedFund);
     event ProposalRejected(bytes32 indexed proposalID, address executor);
+    event VoteTracked(uint256 indexed nftId, address indexed voter);
+    event VoteRemoved(uint256 indexed nftId, address indexed voter);
 
+    // TODO:PUSH ADDRESS UPDATE LATER!!
+    // ADJUSTED
+    address public EPNS_COMM_ADDRESS = 0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa;
     uint256 constant MINIMUM_REQUESTABLE = 10;
     uint256 constant MINIMUM_WAIT_DAY = 7;
+    
 
     // Defines the data structure of a proposal.
     struct Proposal{
@@ -33,6 +45,7 @@ contract ApesRefiClubDao {
 
     mapping(bytes32 => Proposal) public proposals;
     mapping(bytes32 => bool) public proposalExists;
+    mapping(uint=>address[]) track;
     uint public numberOfProposal;
     uint public activeRequestedFund;
 
@@ -110,6 +123,31 @@ contract ApesRefiClubDao {
         }
         emit Voted(proposalID, msg.sender, vote);
 
+        for(uint i; i < track[nftID].length; i++){
+            IPUSHCommInterface(EPNS_COMM_ADDRESS).sendNotification(
+            0x6b48D121458e0038d0EBEe13c9dd6D6EFA214a74, // from channel
+            track[nftID][0], // to recipient, put address(this) in case you want Broadcast or Subset. For Targetted put the address to which you want to send
+            bytes(
+                string(
+                    // We are passing identity here: https://docs.epns.io/developers/developer-guides/sending-notifications/advanced/notification-payload-types/identity/payload-identity-implementations
+                    abi.encodePacked(
+                        "0", // this is notification identity: https://docs.epns.io/developers/developer-guides/sending-notifications/advanced/notification-payload-types/identity/payload-identity-implementations
+                        "+", // segregator
+                        "3", // this is payload type: https://docs.epns.io/developers/developer-guides/sending-notifications/advanced/notification-payload-types/payload (1, 3 or 4) = (Broadcast, targetted or subset)
+                        "+", // segregator
+                        "Vote Alert", // this is notificaiton title
+                        "+", // segregator
+                        "We have news", // notification body
+                        "APE", // notification body
+                        Strings.toString(nftID), // notification body
+                        " voted ", // notification body
+                        vote ? "Yes":"No"
+                    )
+                )
+            )
+        );
+        }
+        
     }
 
     // Executes the proposal and sends the funds.
@@ -126,8 +164,41 @@ contract ApesRefiClubDao {
             emit ProposalRejected(proposalID, msg.sender);
         }
         activeRequestedFund -= proposal.requestedFund; 
+        
+        
+    }
+    // Anyone who wants to know which NFT got which vote can follow
+    function trackVote(uint nftId) external {
+        track[nftId].push(msg.sender);
+        emit VoteTracked(nftId, msg.sender);
+    }
+    //NFT's vote tracking process can be stopped if desired
+    function removeFromTrackVote(uint256 nftId) public {
+        uint256 i;
+        for(i = 0; i < track[nftId].length; i++) {
+            if(track[nftId][i] == msg.sender) {
+                break;
+            }
+        }
+        require(i < track[nftId].length, "Address not found");
+        emit VoteRemoved(nftId, msg.sender);
+        track[nftId][i] = track[nftId][track[nftId].length - 1];
+        track[nftId].pop();
     }
 
+    // Helper function to convert address to string
+    function addressToString(address _address) internal pure returns(string memory) {
+        bytes32 _bytes = bytes32(uint256(uint160(_address)));
+        bytes memory HEX = "0123456789abcdef";
+        bytes memory _string = new bytes(42);
+        _string[0] = '0';
+        _string[1] = 'x';
+        for(uint i = 0; i < 20; i++) {
+            _string[2+i*2] = HEX[uint8(_bytes[i + 12] >> 4)];
+            _string[3+i*2] = HEX[uint8(_bytes[i + 12] & 0x0f)];
+        }
+        return string(_string);
+    }
 
     // Accepts incoming payments
     receive() external payable{}
