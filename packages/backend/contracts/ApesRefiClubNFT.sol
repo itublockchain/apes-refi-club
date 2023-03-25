@@ -7,9 +7,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
-    string constant polybaseURI = "https://testnet.polybase.xyz/v0/collections/pk";
+    // Only the owner of the original NFT can mint in the first given time
+    uint256 constant MIN_TIME_GIVEN_TO_OWNER = 30 days;
+
+    string constant polybaseURI =
+        "https://testnet.polybase.xyz/v0/collections/pk";
 
     IERC721 public bayc;
     IERC20 public ApeCoin;
@@ -22,8 +27,10 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
     string public collectionOwnerPubKey;
     string public collectionHeader;
 
-    mapping(uint256 => bool) private _verifiedTokens;
+    bool public isMintedDry;
+    uint public deployedTime;
 
+    mapping(uint256 => bool) private _verifiedTokens;
 
     event Claimed(uint256 indexed baycTokenId, address indexed owner);
 
@@ -43,6 +50,8 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
         unverifiedCollectionName = _unverifiedCollectionName;
         collectionOwnerPubKey = _collectionOwnerPubKey;
         collectionHeader = _collectionHeader;
+        safeMint();
+        deployedTime = block.timestamp;
     }
 
     function setDAOAddress(address _daoAddress) public onlyOwner {
@@ -50,51 +59,113 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
         daoAddress = _daoAddress;
     }
 
-    function safeMint(address to, uint tokenId) public {
-        require(bayc.ownerOf(tokenId) == to, 'Given address is not the owner of BAYC token');
-        _safeMint(to, tokenId);
+    // NEED TO CONTROL
+    function safeMint() public {
+        for (uint i; i < 10000; i++) {
+            _safeMint(address(this), i);
+        }
     }
 
-    function verify(bytes32[] memory proof, bytes32 leaf) public view returns (bool) {
+    function verify(
+        bytes32[] memory proof,
+        bytes32 leaf
+    ) public view returns (bool) {
         return MerkleProof.verify(proof, merkleRoot, leaf);
     }
 
-    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
-    
-
-    function payCarbonDebt(uint256 baycTokenId, uint256 carbonDebt, bytes32[] memory proof) external {
+    function payCarbonDebt(
+        uint256 baycTokenId,
+        uint256 carbonDebt,
+        bytes32[] memory proof
+    ) external {
         require(daoAddress != address(0), "DAO address hasn't set yet");
         require(carbonDebt > 0, "Amount must be greater than 0");
         require(!_verifiedTokens[baycTokenId], "BAYC token already verified");
-
+        //added
+        if (block.timestamp < deployedTime + MIN_TIME_GIVEN_TO_OWNER) {
+            require(
+                bayc.ownerOf(baycTokenId) == msg.sender,
+                "You are not the owner of the BAYC NFT"
+            );
+        }
+        //*
         bytes32 leaf = keccak256(abi.encodePacked(baycTokenId, carbonDebt));
 
         require(verify(proof, leaf), "Invalid proof");
 
         ApeCoin.transferFrom(msg.sender, daoAddress, carbonDebt);
         _verifiedTokens[baycTokenId] = true;
+        //added
+        require(
+            ownerOf(baycTokenId) == address(this),
+            "This contract does not own the BAYC NFT"
+        );
+        safeTransferFrom(address(this), msg.sender, baycTokenId);
+        //*
     }
 
     function _baseURI() internal view override returns (string memory) {
-        return string(abi.encodePacked(polybaseURI,"%2F",collectionOwnerPubKey,"%2F",collectionHeader,"%2F",unverifiedCollectionName,"/"));
+        return
+            string(
+                abi.encodePacked(
+                    polybaseURI,
+                    "%2F",
+                    collectionOwnerPubKey,
+                    "%2F",
+                    collectionHeader,
+                    "%2F",
+                    unverifiedCollectionName,
+                    "/"
+                )
+            );
     }
 
     function _baseURIVerified() internal view returns (string memory) {
-        return string(abi.encodePacked(polybaseURI,"%2F",collectionOwnerPubKey,"%2F",collectionHeader,"%2F",verifiedCollectionName,"/"));
+        return
+            string(
+                abi.encodePacked(
+                    polybaseURI,
+                    "%2F",
+                    collectionOwnerPubKey,
+                    "%2F",
+                    collectionHeader,
+                    "%2F",
+                    verifiedCollectionName,
+                    "/"
+                )
+            );
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
+        require(
+            _exists(tokenId),
+            "ERC721Metadata: URI query for nonexistent token"
+        );
         string memory baseURI = _baseURI();
-        if(_verifiedTokens[tokenId]) {
+        if (_verifiedTokens[tokenId]) {
             baseURI = _baseURIVerified();
         }
-        return bytes(baseURI).length > 0
-            ? string(abi.encodePacked(baseURI, "records/", Strings.toString(tokenId), "?format=nft"))
-            : "";
+        return
+            bytes(baseURI).length > 0
+                ? string(
+                    abi.encodePacked(
+                        baseURI,
+                        "records/",
+                        Strings.toString(tokenId),
+                        "?format=nft"
+                    )
+                )
+                : "";
     }
 }
-    
