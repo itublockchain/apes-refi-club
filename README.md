@@ -1,5 +1,5 @@
 # Apes Refi Club
-<img style="width: 220px" align="right" src="https://raw.githubusercontent.com/itublockchain/apes-refi-club/master/docs/logo.png">
+<img style="width: 320px" align="right" src="https://raw.githubusercontent.com/itublockchain/apes-refi-club/master/docs/logo.png">
 
 Apes ReFi Club is an innovative platform, created for the [ETHGlobal Scaling 2023 Hackathon](https://ethglobal.com/events/scaling2023), that empowers Bored Ape Yacht Club NFT holders to measure their carbon footprint, contribute to the environment, and obtain eco-friendly NFTs.
 
