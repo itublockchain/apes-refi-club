@@ -20,12 +20,10 @@ contract ApesRefiClubDao {
     event VoteTracked(uint256 indexed nftId, address indexed voter);
     event VoteRemoved(uint256 indexed nftId, address indexed voter);
 
-
     address public EPNS_COMM_ADDRESS = 0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa;
     uint256 constant MINIMUM_REQUESTABLE = 10;
     uint256 constant MINIMUM_WAIT_DAY = 7;
     
-
     // Defines the data structure of a proposal.
     struct Proposal{
         uint yesVotes;
@@ -56,7 +54,6 @@ contract ApesRefiClubDao {
         ApeCoin = IERC20(_ApeCoinAddress);
         ARClubNFT = IERC721(_nftAddress);
     }
-
 
     // An access modifier that ensures only ARClubNFT owners (APEDAO members) can perform the task.
     modifier ARCHolderOnly {
@@ -163,9 +160,9 @@ contract ApesRefiClubDao {
         }
         else{
             emit ProposalRejected(proposalID, msg.sender);
+            proposal.executed = true;
         }
         activeRequestedFund -= proposal.requestedFund; 
-        
         
     }
     // Anyone who wants to know which NFT got which vote can follow
