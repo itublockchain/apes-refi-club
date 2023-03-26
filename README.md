@@ -15,11 +15,11 @@ The goal of Apes ReFi Club is to direct the collected funds towards eco-friendly
 | Tech                               | Field                 |
 | ---------------------------------- | --------------------- |
 | [Polybase](https://polybase.xyz/)  | Web3 Database         |
-| [NestJS](https://nestjs.com/)      | Backend               |
 | [ReactJS](https://react.dev/)      | Frontend              |
 | [Hardhat](https://hardhat.org/)    | Smart Contracts       |
 | [Scroll](https://scroll.io/)       | L2                    |
 | [Push Protocol](https://push.org/) | Notification service  |
+| [The Graph](https://thegraph.com)  | Price aggregator      |
 
 
 <br/>
