@@ -22,17 +22,6 @@ The goal of Apes ReFi Club is to direct the collected funds towards eco-friendly
 | [Push Protocol](https://push.org/) | Notification service  |
 
 
-
-
-
-1.  Run `yarn` to install all the dependencies
-2.  Once installation is complete, `cd` into app's directory and run `yarn` to start a local hardhat environment
-3.  Open another terminal and `cd` into app's directory
-4.  Run `yarn deploy` to deploy the example contract locally
-5.  Run `yarn dev` to start your FrontEnd dev environment
-
- [ETHGlobal Scaling 2023 Hackathon](https://ethglobal.com/events/scaling2023) project.
-
 <br/>
 
 ## Team Members
