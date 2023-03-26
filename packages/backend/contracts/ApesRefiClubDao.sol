@@ -22,7 +22,7 @@ contract ApesRefiClubDao {
 
     address public EPNS_COMM_ADDRESS = 0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa;
     uint256 constant MINIMUM_REQUESTABLE = 10;
-    uint256 constant MINIMUM_WAIT_DAY = 7;
+    uint256 constant public MINIMUM_WAIT= 7 days;
     
     // Defines the data structure of a proposal.
     struct Proposal{
@@ -98,7 +98,7 @@ contract ApesRefiClubDao {
         Proposal storage proposal = proposals[_proposalID];
         proposal.to = _to;
         proposal.proposalID = _proposalID;
-        proposal.deadline = block.timestamp + MINIMUM_WAIT_DAY * 1 days;
+        proposal.deadline = block.timestamp + MINIMUM_WAIT;
         numberOfProposal ++;
         activeRequestedFund += _requestedFund; 
         proposalExists[_proposalID] = true;

@@ -35,8 +35,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const carbons = (await carbonCollectionReferance.get()).data;
   for (let i = 0; i < carbons.length; i += 1) {
     const id = carbons[i].data?.id;
-    const carbonEmission: number = carbons[i].data?.correspondingApeCoinAmount;
-    merkleTreeValues.push([Number(id), Number(carbonEmission)]);
+    const carbonEmission: BigNumber = BigNumber.from(carbons[i].data?.correspondingApeCoinAmount);
+
+    merkleTreeValues.push([Number(id), BigNumber.from(carbonEmission)]);
   }
 
   const tree = StandardMerkleTree.of(merkleTreeValues, ['uint', 'uint']);
@@ -46,14 +47,13 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const mockApeCoin = await hre.ethers.getContract('MockApeCoin');
 
   const id = Number(carbons[ARC_NFT_ID].data?.id);
-  const carbonDebt = Number(carbons[ARC_NFT_ID].data?.correspondingApeCoinAmount);
+  const carbonDebt = BigNumber.from(carbons[ARC_NFT_ID].data?.correspondingApeCoinAmount);
 
-  await mockApeCoin.mint(signers[1].address, BigNumber.from(carbonDebt));
+  await mockApeCoin.mint(signers[1].address, carbonDebt);
+
   await mockApeCoin.connect(signers[1]).approve(apesRefiClubNFT.address, await mockApeCoin.balanceOf(signers[1].address));
   await apesRefiClubNFT.setDAOAddress(apesRefiClubDao.address);
-  await apesRefiClubNFT
-    .connect(signers[1])
-    .payCarbonDebt(BigNumber.from(id), BigNumber.from(carbonDebt), tree.getProof(ARC_NFT_ID));
+  await apesRefiClubNFT.connect(signers[1]).payCarbonDebt(BigNumber.from(id), carbonDebt, tree.getProof(ARC_NFT_ID));
 
   console.log(id);
   console.log(await apesRefiClubNFT.tokenURI(BigNumber.from(id)));

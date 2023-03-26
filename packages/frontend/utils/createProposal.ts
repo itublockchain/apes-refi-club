@@ -10,12 +10,16 @@ const db = new Polybase({
 const referance = db.collection('proposal');
 
 export const createProposal = async (
+  id: string,
   name: string,
+  slug: string,
+  createDate: number,
   owner: string,
   description: string,
   website: string,
   desiredAmount: number,
-  account: string
+  account: string,
+  endDate: number
 ) => {
   db.signer(async (data) => {
     return {
@@ -23,9 +27,6 @@ export const createProposal = async (
       sig: await signMessage({ message: data }),
     };
   });
-  const slug = slugify(name);
-  const createDate = Math.floor(Number(new Date()) / 1000);
-  const id = keccak256(toUtf8Bytes([name, slug, owner, description, website, createDate, desiredAmount, account].toString()));
 
-  await referance.create([id, name, slug, owner, description, website, createDate, desiredAmount, account]);
+  await referance.create([id, name, slug, owner, description, website, createDate, desiredAmount, account, endDate]);
 };

@@ -83,6 +83,7 @@ const IPFS_BASE_URL = 'https://ipfs.io/ipfs/';
 const APE_YACHT_CLUB_BASE = 'QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/';
 const ETHERSCAN_BASE = 'https://etherscan.io/tx/';
 const BAYC_OPENSEA_BASE = 'https://opensea.io/assets/ethereum/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/';
+const DECIMAL_CONSTANT = BigNumber.from('1000000000000000000');
 
 function ApeCard(props: ApeCardProps) {
   const { id } = props;
@@ -129,16 +130,13 @@ function ApeCard(props: ApeCardProps) {
   useEffect(() => {
     if (id && apesRefiClubNFTContract != null) {
       try {
-        console.log(apesRefiClubNFTContract);
         apesRefiClubNFTContract
           ?.verifiedTokens(BigNumber.from(id))
           .then((data: boolean) => {
             console.log(data);
             setVerified(data);
           })
-          .catch((err: any) => {
-            console.log(err);
-          });
+          .catch((err: any) => {});
       } catch (err) {
         console.log(err);
         toast.error('Failed to load verified data', {
@@ -185,11 +183,19 @@ function ApeCard(props: ApeCardProps) {
         });
       }
       try {
-        axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${id}`).then((response) => {
-          const metadata: MetaData = response.data;
-          const apeImage = metadata.image.split('/');
-          setImage(`${IPFS_BASE_URL}${apeImage[apeImage.length - 1]}`);
-        });
+        console.log(apesRefiClubNFTContract);
+        apesRefiClubNFTContract
+          .tokenURI(BigNumber.from(Number(id)))
+          .then((res: any) => {
+            axios
+              .get(res)
+              .then((data: any) => {
+                const apeImage = data.data.image.split('/');
+                setImage(`${IPFS_BASE_URL}${apeImage[apeImage.length - 1]}`);
+              })
+              .catch((err: any) => {});
+          })
+          .catch((err: any) => {});
       } catch {
         toast.error('Failed to load image from ipfs', {
           position: 'top-right',
@@ -225,7 +231,7 @@ function ApeCard(props: ApeCardProps) {
     if (isConnected) {
       setIsLoading(true);
       console.log(account.address);
-      console.log(await boredApeYachtClubContract?.ownerOf(Number(id)));
+      console.log(Number(id), carbonEmission?.correspondingApeCoinAmount);
       try {
         const tx0 = await apeCoinContract?.approve(
           APES_REFI_CLUB_NFT_ADDRESS,
@@ -233,11 +239,12 @@ function ApeCard(props: ApeCardProps) {
         );
         await tx0.wait();
         const tx1 = await apesRefiClubNFTContract?.payCarbonDebt(
-          id,
-          carbonEmission?.correspondingApeCoinAmount,
+          BigNumber.from(Number(id)),
+          BigNumber.from(carbonEmission?.correspondingApeCoinAmount),
           merkleTree?.getProof(Number(id))
         );
         await tx1.wait();
+        setVerified(true);
       } catch (err) {
         toast.error('Transaction failed', {
           position: 'top-right',
@@ -302,35 +309,37 @@ function ApeCard(props: ApeCardProps) {
                       </div>
                       <div className='h-10 w-1/2 text-md font-bold text-gray-600 flex justify-center items-center'>
                         Total Carbon Emission:
-                        <span className='text-md font-normal text-black px-1'>{carbonEmission.txCount} Kg</span>
+                        <span className='text-md font-normal text-black px-1'>{carbonEmission.carbonEmission} Kg</span>
                       </div>
                     </div>
                     <div className='flex flex-row'>
                       <div className='h-10 w-1/2 text-md font-bold text-gray-600 flex justify-center items-center'>
                         Ape Amount:
                         <span className='text-md font-normal text-black px-1'>
-                          {carbonEmission.correspondingApeCoinAmount} APE
+                          {Number(BigNumber.from(carbonEmission.correspondingApeCoinAmount).div(DECIMAL_CONSTANT))} APE
                         </span>
                       </div>
                       <div className='h-10 w-1/2 text-md font-bold text-gray-600 flex justify-center items-center'>
                         USD Amount:
-                        <span className='text-md font-normal text-black px-1'>{carbonEmission.correspondingApeCoinAmount}$</span>
+                        <span className='text-md font-normal text-black px-1'>
+                          {Number(BigNumber.from(carbonEmission.correspondingApeCoinAmount).div(DECIMAL_CONSTANT))}$
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
               <div className='flex items-center justify-center'>
-                {!isVerified ? (
-                  <button
-                    onClick={() => handleClick()}
-                    className='h-10 border-none shadow-sm p-2 bg-amber-800 rounded-lg text-center align-middle hover:bg-amber-900'
-                  >
-                    {isLoading ? '...' : 'Pay Carbon Debt'}
-                  </button>
-                ) : (
-                  <div className='border-none shadow-sm p-2 bg-green-600 rounded-lg'>Carbon Debt Paid</div>
-                )}
+                <button
+                  disabled={isVerified}
+                  onClick={() => handleClick()}
+                  className={classNames(
+                    isVerified ? 'bg-green-500' : 'bg-amber-500 hover:bg-amber-600',
+                    'h-10 border-none shadow-sm p-2 rounded-lg text-center align-middle w-1/4 transition-all'
+                  )}
+                >
+                  {isLoading ? '...' : `${isVerified ? 'Carbon Debt Paid' : 'Pay Carbon Debt'}`}
+                </button>
               </div>
             </div>
           </div>
@@ -341,7 +350,7 @@ function ApeCard(props: ApeCardProps) {
               Recent Votes:
               <div className='h-36 m-2 mb-0 overflow-hidden shadow-sm rounded-md'>
                 <div className='h-36 overflow-scroll bg-white'>
-                  {recentVotes.map((recent, index) => {
+                  {votes.map((recent, index) => {
                     return (
                       <div
                         key={index}
@@ -350,8 +359,8 @@ function ApeCard(props: ApeCardProps) {
                           'h-10 shadow-sm flex text-gray-700 p-2 text-md font-normal items-center'
                         )}
                       >
-                        <span className='text-slate-900 text-sm w-3/5'>{recent?.proposalHash}</span>
-                        <span className='text-slate-900 text-xs w-1/5 text-right'>{recent.voteDate}</span>
+                        <span className='text-slate-900 text-sm w-3/5'>{recent?.proposalId}</span>
+                        <span className='text-slate-900 text-xs w-1/5 text-right'>{recent.date}</span>
                       </div>
                     );
                   })}

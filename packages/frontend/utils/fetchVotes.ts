@@ -6,9 +6,9 @@ const db = new Polybase({
 });
 const collectionReference = db.collection('vote');
 
-export async function listRecentVotes(id: number) {
-  const records = await collectionReference.where('nftId', '==', id).get();
-  return records.data.map((data) => {
+export async function fetchVotes(id: string) {
+  const records: any = await collectionReference.where('proposalId', '==', id).get();
+  return records.data.map((data: any) => {
     return data.data;
   });
 }

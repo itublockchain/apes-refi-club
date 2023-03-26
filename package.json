@@ -33,6 +33,7 @@
     "@polybase/client": "^0.3.37",
     "@polybase/react": "^0.3.37",
     "axios": "^1.3.4",
+    "eth-rpc-errors": "^4.0.3",
     "human-date": "^1.4.0",
     "react-icons": "^4.8.0",
     "react-infinite-scroll-component": "^6.1.0",

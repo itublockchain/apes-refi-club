@@ -4,12 +4,13 @@ import { getNetwork, GetNetworkResult, watchNetwork } from '@wagmi/core';
 import { CHAINS, POLYBASE_NAMESPACE } from '../config';
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
 import { Polybase } from '@polybase/client';
+import { BigNumber } from 'ethers';
 
 type LayoutProps = {};
 
 type MerkleLeaf = {
   id: number;
-  carbonEmission: number;
+  carbonEmission: BigNumber;
 };
 
 const db = new Polybase({
@@ -34,8 +35,8 @@ function Layout(props: PropsWithChildren<LayoutProps>) {
         const carbons = data.data;
         for (let i = 0; i < carbons.length; i += 1) {
           const id = carbons[i].data?.id;
-          const carbonEmission: number = carbons[i].data?.correspondingApeCoinAmount;
-          merkleTreeVals.push({ id: Number(id), carbonEmission: Number(carbonEmission) });
+          const carbonEmission: string = carbons[i].data?.correspondingApeCoinAmount;
+          merkleTreeVals.push({ id: Number(id), carbonEmission: BigNumber.from(carbonEmission) });
         }
         setMerkleTreeValues(merkleTreeVals);
       });
@@ -49,7 +50,9 @@ function Layout(props: PropsWithChildren<LayoutProps>) {
       const treeVals = merkleTreeValues?.map((carbon: MerkleLeaf) => {
         return [carbon.id, carbon.carbonEmission];
       });
-      console.log([...treeVals]);
+      treeVals.sort((a: Array<Number | BigNumber>, b: Array<Number | BigNumber>) => {
+        return Number(a[0]) - Number(b[0]);
+      });
       const tree = StandardMerkleTree.of([...treeVals], ['uint', 'uint']);
       setMerkleTree(tree);
     }

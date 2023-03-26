@@ -11,8 +11,9 @@ type Proposal = {
   website: string;
   endDate: number;
   createDate: number;
-  desiredAmount: number;
+  requestedAmount: number;
   account: string;
+  executed: boolean;
 };
 
 function ProposalShowCase() {
@@ -26,16 +27,19 @@ function ProposalShowCase() {
     listProposalRecords().then((data: Proposal[]) => {
       for (let index = 0; index < data.length; index += 1) {
         const proposal = data[index];
-        if (proposal.endDate * 1000 >= Number(new Date())) {
+        if (!proposal.executed) {
           actives.push(proposal);
         } else {
           recents.push(proposal);
         }
       }
+      console.log(actives);
       setActiveProposals(actives);
       setResentProposals(recents);
     });
   }, []);
+
+  useEffect(())
 
   return (
     <>

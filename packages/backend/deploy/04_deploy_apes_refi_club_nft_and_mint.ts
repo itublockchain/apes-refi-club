@@ -16,6 +16,7 @@ const CARBON_COEFFICENT = 7;
 const APE_COIN_PER_CARBON = 3;
 
 const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const DECIMAL_CONSTANT = BigNumber.from('1000000000000000000');
   const deployments = hre.deployments;
   const { deploy } = deployments;
 
@@ -46,12 +47,16 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await carbonCollectionReferance.create([
       unverified.id,
       txCount * CARBON_COEFFICENT,
-      txCount * CARBON_COEFFICENT * APE_COIN_PER_CARBON,
+      DECIMAL_CONSTANT.mul(txCount * CARBON_COEFFICENT * APE_COIN_PER_CARBON).toString(),
       txCount,
     ]);
-    merkleTreeValues.push([Number(unverified.id), Number(txCount * CARBON_COEFFICENT * APE_COIN_PER_CARBON)]);
+    merkleTreeValues.push([Number(unverified.id), DECIMAL_CONSTANT.mul(txCount * CARBON_COEFFICENT * APE_COIN_PER_CARBON)]);
   }
-  console.log(merkleTreeValues);
+
+  merkleTreeValues.sort((a: Array<Number | BigNumber>, b: Array<Number | BigNumber>) => {
+    return Number(a[0]) - Number(b[0]);
+  });
+
   console.log('Merkle root is creating...');
   const tree = StandardMerkleTree.of(merkleTreeValues, ['uint', 'uint']);
 

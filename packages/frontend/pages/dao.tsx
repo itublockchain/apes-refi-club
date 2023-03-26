@@ -1,6 +1,7 @@
 import { ProposalShowCase, FundRequestForm } from '@/components';
-import { createProposal } from '@/utils';
-import { useState } from 'react';
+import { APES_REFI_CLUB_DAO_ABI, APES_REFI_CLUB_DAO_ADDRESS } from '@/config';
+import { useEffect } from 'react';
+import { useContract, useSigner } from 'wagmi';
 
 export default function DAOPage() {
   return (
