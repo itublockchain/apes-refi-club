@@ -1602,6 +1602,44 @@
               "inputs": [
                 {
                   "indexed": true,
+                  "internalType": "uint256",
+                  "name": "nftId",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "voter",
+                  "type": "address"
+                }
+              ],
+              "name": "VoteRemoved",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "uint256",
+                  "name": "nftId",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "voter",
+                  "type": "address"
+                }
+              ],
+              "name": "VoteTracked",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
                   "internalType": "bytes32",
                   "name": "proposalID",
                   "type": "bytes32"
@@ -1628,6 +1666,19 @@
             },
             {
               "inputs": [],
+              "name": "EPNS_COMM_ADDRESS",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "activeRequestedFund",
               "outputs": [
                 {
@@ -1637,6 +1688,25 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "_bytes32",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "bytes32ToString",
+              "outputs": [
+                {
+                  "internalType": "string",
+                  "name": "",
+                  "type": "string"
+                }
+              ],
+              "stateMutability": "pure",
               "type": "function"
             },
             {
@@ -1754,6 +1824,32 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "nftId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "removeFromTrackVote",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "nftId",
+                  "type": "uint256"
+                }
+              ],
+              "name": "trackVote",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
