@@ -39,8 +39,6 @@ function ProposalShowCase() {
     });
   }, []);
 
-  useEffect(())
-
   return (
     <>
       <div className='flex flex-col w-full p-6'>
