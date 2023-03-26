@@ -26,7 +26,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       sig: await signers[0].signMessage(data),
     };
   });
-
+  /*
   console.log('Unverified collection is being deleted...');
   const unverifieds = (await unverifiedCollectionReferance.get()).data;
   for (let i = 0; i < unverifieds.length; i += 1) {
@@ -68,6 +68,7 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       }
     }
   }
+*/
   console.log(validNfts);
 };
 

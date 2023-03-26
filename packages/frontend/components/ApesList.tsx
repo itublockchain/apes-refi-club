@@ -31,7 +31,7 @@ const APE_YACHT_CLUB_BASE = 'QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/';
 
 export default function ApesList(props: ApesListProps) {
   const { apeIndexes, sortOption } = props;
-  let offset = Math.min(apeIndexes.length, MAX_LOAD_ONCE);
+  const [offset, setOffset] = useState(Math.min(MAX_LOAD_ONCE, apeIndexes.length ? apeIndexes.length : MAX_LOAD_ONCE));
 
   const [apesData, setApesData] = useState<ApeData[]>([]);
 
@@ -70,16 +70,20 @@ export default function ApesList(props: ApesListProps) {
         setApesData((prev: ApeData[]) => [...prev, newApe]);
       });
     }
-    offset = Math.min(offset + MAX_LOAD_ONCE, apeIndexes.length);
+    setOffset(Math.min(offset + MAX_LOAD_ONCE, apeIndexes.length));
   };
 
   return (
-    <div className='w-full h-full bg-gray-200'>
+    <div className='w-full h-full bg-[#e6f2cc]'>
       <InfiniteScroll
         dataLength={apesData.length}
         next={fetchMore}
         hasMore={apesData.length < apeIndexes.length}
-        loader={<Loader loaderColor='blue' loaderText='Loading' />}
+        loader={
+          <div className='w-40 h-40'>
+            <Loader loaderColor='blue' loaderText='Loading' />
+          </div>
+        }
       >
         <ul className='px-10 py-3 grid sm:grid-cols-3 gap-10 justify-items-center align-middle md:grid-cols-4 lg:grid-cols-5'>
           {apesData.map((ape, index) => {

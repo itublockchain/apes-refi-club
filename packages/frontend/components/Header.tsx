@@ -29,8 +29,8 @@ export default function Header(props: HeaderProps) {
   return (
     <>
       <div
-        className='py-1 px-4 flex items-center justify-between shadow-sm shadow-[#0f766e] z-10'
-        style={{ backgroundColor: '#0f766e' }}
+        className='py-1 px-4 flex items-center justify-between shadow-sm shadow-[#08423d] z-10'
+        style={{ backgroundColor: '#08423d' }}
       >
         <div className='float-left flex items-center'>
           <Image src={apeLogo} alt='' className='rounded-full w-20 h-20' />

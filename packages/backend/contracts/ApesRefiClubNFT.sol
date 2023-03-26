@@ -29,7 +29,7 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
 
     uint public deployedTime;
 
-    mapping(uint256 => bool) private _verifiedTokens;
+    mapping(uint256 => bool) public verifiedTokens;
 
 
     event CarbonDebtPaid(uint256 indexed baycTokenId, address indexed owner);
@@ -83,7 +83,7 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
     ) external {
         require(daoAddress != address(0), "DAO address hasn't set yet");
         require(carbonDebt > 0, "Amount must be greater than 0");
-        require(!_verifiedTokens[baycTokenId], "BAYC token already verified");
+        require(!verifiedTokens[baycTokenId], "BAYC token already verified");
         //added
         if (block.timestamp < deployedTime + MIN_TIME_GIVEN_TO_OWNER) {
             require(
@@ -99,7 +99,7 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
         require(verify(proof, leaf), "Invalid proof");
 
         ApeCoin.transferFrom(msg.sender, daoAddress, carbonDebt);
-        _verifiedTokens[baycTokenId] = true;
+        verifiedTokens[baycTokenId] = true;
         _safeMint(msg.sender, baycTokenId);
         
     }
@@ -144,7 +144,7 @@ contract ApesRefiClubNFT is ERC721Enumerable, Ownable, IERC721Receiver {
             "ERC721Metadata: URI query for nonexistent token"
         );
         string memory baseURI = _baseURI();
-        if (_verifiedTokens[tokenId]) {
+        if (verifiedTokens[tokenId]) {
             baseURI = _baseURIVerified();
         }
         return

@@ -1,67 +1,50 @@
-import { useContract, useProvider } from 'wagmi';
-import abi from '../constants/boredApeYachtClubABI.json';
-import { BORED_APE_YACHT_CLUB_ADDRESS } from '@/config';
-import { useEffect, useState } from 'react';
+import { useAccount, useContract, useProvider, useSigner } from 'wagmi';
+import {
+  BORED_APE_YACHT_CLUB_ADDRESS,
+  BORED_APE_YACHT_CLUB_ABI,
+  APES_REFI_CLUB_NFT_ADDRESS,
+  APES_REFI_CLUB_NFT_ABI,
+  APE_COIN_ADDRESS,
+  APE_COIN_ABI,
+} from '@/config';
+import { useEffect, useState, useCallback, useContext } from 'react';
 import axios from 'axios';
 import openSeaIcon from '../public/opensea_icon.png';
 import Image from 'next/image';
-import { classNames } from '@/utils';
+import { classNames, listRecentVotes, fetchCarbonEmission } from '@/utils';
+import { BigNumber } from 'ethers';
+import { toast } from 'react-toastify';
+import { MerkleContext } from './Layout';
+import Loader from './Loader';
 
 type ApeCardProps = {
   id: string | string[];
 };
 
-interface Attribute {
+type Attribute = {
   trait_type: string;
   value: string;
-}
+};
 
-interface MetaData {
+type MetaData = {
   image: string;
   attributes: Attribute[];
-}
-const IPFS_BASE_URL = 'https://ipfs.io/ipfs/';
-const APE_YACHT_CLUB_BASE = 'QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/';
-const ETHERSCAN_BASE = 'https://etherscan.io/tx/';
-const BAYC_OPENSEA_BASE = 'https://opensea.io/assets/ethereum/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/';
+};
 
-const supporters = [
-  {
-    txHash: '0xa3d807ec8d9ce5340b4b439ad0c9df5d3f33bb57c50086ee585b6c5fb03e09e8',
-    from: '0xf8a11e7bc7c9306e821f07b60b5e6d2075d82ff4',
-    amount: 11,
-  },
-  {
-    txHash: '0x8dda7def571e6e35bb18e4a1e34d6d02292b932677d726ebf1938e557cec8cb0',
-    from: '0x885164ca615b2b565963bbdc03e9f94d4903c2b8',
-    amount: 983475,
-  },
-  {
-    txHash: '0x8dda7def571e6e35bb18e4a1e34d6d02292b932677d726ebf1938e557cec8cb0',
-    from: '0x885164ca615b2b565963bbdc03e9f94d4903c2b8',
-    amount: 734,
-  },
-  {
-    txHash: '0xc0e1b95984cfdbc1bd12439942e072e49c92c229d7bcda2af31e27cf077ae821',
-    from: '0x150f9023811eae01facb671f8f25bb29af70fce8',
-    amount: 13,
-  },
-  {
-    txHash: '0x702c1554f1d5d9cac6e65b2accdd2bcc122aa9ff0a36a09f9f6434416a3c3744',
-    from: '0xf2bdc8db1cd2e771ebb281f54292aa4c9cedc2bc',
-    amount: 7,
-  },
-  {
-    txHash: '0xf3a56d0a5dd3a3ea1dbe9ef85ea92a1137dbe10b90ec1aa6a96bffc44d33d359',
-    from: '0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326',
-    amount: 784536,
-  },
-  {
-    txHash: '0x68c1ebf03e3467e7a78aba930a6d33cbd6c46c6ffd5051723bd8531f809ac9fa',
-    from: '0x27899fface558bde9f284ba5c8c91ec79ee60fd6',
-    amount: 2766,
-  },
-];
+type Vote = {
+  id: string;
+  vote: boolean;
+  date: number;
+  nftId: number;
+  proposalId: string;
+};
+
+type CarbonEmission = {
+  id: string;
+  carbonEmission: number;
+  correspondingApeCoinAmount: number;
+  txCount: number;
+};
 
 const recentVotes = [
   {
@@ -96,41 +79,197 @@ const recentVotes = [
   },
 ];
 
+const IPFS_BASE_URL = 'https://ipfs.io/ipfs/';
+const APE_YACHT_CLUB_BASE = 'QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/';
+const ETHERSCAN_BASE = 'https://etherscan.io/tx/';
+const BAYC_OPENSEA_BASE = 'https://opensea.io/assets/ethereum/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/';
+
 function ApeCard(props: ApeCardProps) {
   const { id } = props;
   const [holder, setHolder] = useState<string>();
   const [image, setImage] = useState<string>();
+  const [votes, setVotes] = useState<Vote[]>([]);
+  const [isVerified, setVerified] = useState<boolean>(false);
+  const [carbonEmission, setCarbonEmission] = useState<CarbonEmission>();
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const merkleTree = useContext(MerkleContext);
 
   const provider = useProvider();
+  const { data: signer } = useSigner();
+  const account = useAccount();
+
   const boredApeYachtClubContract = useContract({
-    abi: (abi as any).abi,
+    abi: BORED_APE_YACHT_CLUB_ABI,
     address: BORED_APE_YACHT_CLUB_ADDRESS,
     signerOrProvider: provider,
   });
 
+  const apesRefiClubNFTContract = useContract({
+    address: APES_REFI_CLUB_NFT_ADDRESS,
+    abi: APES_REFI_CLUB_NFT_ABI,
+    signerOrProvider: signer,
+  });
+
+  const apeCoinContract = useContract({
+    address: APE_COIN_ADDRESS,
+    abi: APE_COIN_ABI,
+    signerOrProvider: signer,
+  });
+
   useEffect(() => {
-    if (id) {
-      boredApeYachtClubContract?.ownerOf(id).then((owner: string) => {
-        console.log(owner);
-        setHolder(owner);
-      });
-      if (id) {
+    if (account.isConnected) {
+      setIsConnected(true);
+    } else {
+      setIsConnected(false);
+    }
+  }, [account]);
+
+  useEffect(() => {
+    if (id && apesRefiClubNFTContract != null) {
+      try {
+        console.log(apesRefiClubNFTContract);
+        apesRefiClubNFTContract
+          ?.verifiedTokens(BigNumber.from(id))
+          .then((data: boolean) => {
+            console.log(data);
+            setVerified(data);
+          })
+          .catch((err: any) => {
+            console.log(err);
+          });
+      } catch (err) {
+        console.log(err);
+        toast.error('Failed to load verified data', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      }
+      try {
+        boredApeYachtClubContract?.ownerOf(id).then((owner: string) => {
+          setHolder(owner);
+        });
+      } catch (err) {
+        toast.error('Failed to load owner', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      }
+      try {
+        listRecentVotes(Number(id)).then((data) => {
+          setVotes(data);
+        });
+      } catch {
+        toast.error('Failed to load vote data', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      }
+      try {
         axios.get(`${IPFS_BASE_URL}${APE_YACHT_CLUB_BASE}${id}`).then((response) => {
           const metadata: MetaData = response.data;
           const apeImage = metadata.image.split('/');
           setImage(`${IPFS_BASE_URL}${apeImage[apeImage.length - 1]}`);
         });
+      } catch {
+        toast.error('Failed to load image from ipfs', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      }
+      try {
+        fetchCarbonEmission(String(id)).then((data: CarbonEmission) => {
+          setCarbonEmission(data);
+        });
+      } catch {
+        toast.error('Failed to load vote data', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
       }
     }
-  }, [id]);
+  }, [id, apesRefiClubNFTContract]);
 
-  useEffect(() => {
-    console.log(holder);
-  }, [holder]);
+  const handleClick = async () => {
+    if (isConnected) {
+      setIsLoading(true);
+      console.log(account.address);
+      console.log(await boredApeYachtClubContract?.ownerOf(Number(id)));
+      try {
+        const tx0 = await apeCoinContract?.approve(
+          APES_REFI_CLUB_NFT_ADDRESS,
+          BigNumber.from(carbonEmission?.correspondingApeCoinAmount)
+        );
+        await tx0.wait();
+        const tx1 = await apesRefiClubNFTContract?.payCarbonDebt(
+          id,
+          carbonEmission?.correspondingApeCoinAmount,
+          merkleTree?.getProof(Number(id))
+        );
+        await tx1.wait();
+      } catch (err) {
+        toast.error('Transaction failed', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      toast.error('Please connect with metamask to pay', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+    }
+  };
+
   return (
     <div className='h-screen w-screen'>
       <div className='flex flex-col p-20'>
-        <div className='flex flex-row gap-10'>
+        <div className='flex flex-col md:flex-row gap-10'>
           <div className='w-96 rounded-md shadow-md'>
             <div className='h-72'>
               <img src={image} alt='' className='bg-white' />
@@ -146,59 +285,72 @@ function ApeCard(props: ApeCardProps) {
             </div>
           </div>
           <div className='w-full h-96'>
-            <div className='flex flex-col px-10 shadow-md rounded-lg'>
+            <div className='flex flex-col px-10 shadow-md rounded-lg h-96'>
               <span className='text-lg font-bold pt-10'>{`Bored Ape Yacht Club #${id}`}</span>
               <div className='flex flex-row p-4 text-gray-400 text-xl'>
-                {'Owned By: '}
+                {isVerified ? 'Owned By: ' : 'Possible Owner: '}
                 <div className='w-3' />
                 <span className='text-xl text-gray-700'>{holder}</span>
               </div>
-              <div className='h-64 p-2 font-bold'>
-                {'Supporters:'}
-                <div className='shadow-sm rounded-md h-48 overflow-hidden font-normal p-2 bg-gray-100'>
-                  <div className='h-full overflow-y-scroll'>
-                    {supporters.map((support) => {
-                      return (
-                        <a href={`${ETHERSCAN_BASE}${support.txHash}`} className='flex flex-col hover:bg-gray-200 p-2 rounded-md'>
-                          <div className='text-gray-500 text-md w-full'>
-                            {'TX Hash: '}
-                            <span className='text-gray-800 text-sm'>{support.txHash}</span>
-                          </div>
-                          <div className='flex flex-row h-5'>
-                            <span className='text-gray-500 text-sm w-2/3 px-4'>
-                              {'From: '}
-                              <span className='text-gray-800 text-xs'>{support.from}</span>
-                            </span>
-                            <span className='text-gray-500 text-sm w-1/3'>
-                              {'Amout: '}
-                              <span className='text-gray-800 text-xs'>{support.amount}</span>
-                            </span>
-                          </div>
-                        </a>
-                      );
-                    })}
+              {carbonEmission && (
+                <div className='p-4 mb-2'>
+                  <div className='h-36 bg-gray-100 rounded-md flex flex-col p-4'>
+                    <div className='flex flex-row'>
+                      <div className='h-10 w-1/2 text-md font-bold text-gray-600 flex justify-center items-center'>
+                        Total Transactions:
+                        <span className='text-md font-normal text-black px-1'>{carbonEmission.txCount}</span>
+                      </div>
+                      <div className='h-10 w-1/2 text-md font-bold text-gray-600 flex justify-center items-center'>
+                        Total Carbon Emission:
+                        <span className='text-md font-normal text-black px-1'>{carbonEmission.txCount} Kg</span>
+                      </div>
+                    </div>
+                    <div className='flex flex-row'>
+                      <div className='h-10 w-1/2 text-md font-bold text-gray-600 flex justify-center items-center'>
+                        Ape Amount:
+                        <span className='text-md font-normal text-black px-1'>
+                          {carbonEmission.correspondingApeCoinAmount} APE
+                        </span>
+                      </div>
+                      <div className='h-10 w-1/2 text-md font-bold text-gray-600 flex justify-center items-center'>
+                        USD Amount:
+                        <span className='text-md font-normal text-black px-1'>{carbonEmission.correspondingApeCoinAmount}$</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )}
+              <div className='flex items-center justify-center'>
+                {!isVerified ? (
+                  <button
+                    onClick={() => handleClick()}
+                    className='h-10 border-none shadow-sm p-2 bg-amber-800 rounded-lg text-center align-middle hover:bg-amber-900'
+                  >
+                    {isLoading ? '...' : 'Pay Carbon Debt'}
+                  </button>
+                ) : (
+                  <div className='border-none shadow-sm p-2 bg-green-600 rounded-lg'>Carbon Debt Paid</div>
+                )}
               </div>
             </div>
           </div>
         </div>
-        <div className='h-52 mt-10 shadow-md rounded-lg p-4'>
-          {recentVotes.length && (
+        {recentVotes.length ? (
+          <div className='h-52 mt-10 shadow-md rounded-lg p-4'>
             <div className='text-lg font-bold flex-col items-center'>
               Recent Votes:
               <div className='h-36 m-2 mb-0 overflow-hidden shadow-sm rounded-md'>
                 <div className='h-36 overflow-scroll bg-white'>
-                  {recentVotes.map((recent) => {
+                  {recentVotes.map((recent, index) => {
                     return (
                       <div
+                        key={index}
                         className={classNames(
                           recent.vote ? 'bg-emerald-100 hover:bg-emerald-200' : 'bg-red-100 hover:bg-red-200',
                           'h-10 shadow-sm flex text-gray-700 p-2 text-md font-normal items-center'
                         )}
                       >
-                        <span className='text-slate-900 text-sm w-3/5'>{recent.proposalHash}</span>
-                        <span className='text-slate-900 text-xs w-1/5'>Total Votes: {recent.totalVotes}</span>
+                        <span className='text-slate-900 text-sm w-3/5'>{recent?.proposalHash}</span>
                         <span className='text-slate-900 text-xs w-1/5 text-right'>{recent.voteDate}</span>
                       </div>
                     );
@@ -206,8 +358,8 @@ function ApeCard(props: ApeCardProps) {
                 </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

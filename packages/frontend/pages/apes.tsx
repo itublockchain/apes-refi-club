@@ -24,7 +24,7 @@ interface MetaData {
   attributes: Attribute[];
 }
 const APE_YACHT_CLUB_OPENSEA_BASE_URL = 'https://opensea.io/assets/ethereum/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/';
-const MAX_APE_INDEX = 54;
+const MAX_APE_INDEX = 55;
 const sortOptions = [{ name: 'ID' }, { name: 'Carbon Footprint' }, { name: 'Paid Amount' }];
 
 export default function ApesPage(props: ApesProps) {
@@ -128,15 +128,15 @@ export default function ApesPage(props: ApesProps) {
 
   return (
     <>
-      <div className='bg-gray-200 h-fit'>
+      <div className='bg-[#0f766e] h-fit'>
         <div className='w-full h-96 '>
           <Image src={apeYachtClubCover} alt='' className='object-cover h-96' />
         </div>
-        <div className='w-full h-16 bg-gray-200 sticky top-0 flex items-center justify-between px-16 shadow-md'>
+        <div className='w-full h-16 bg-[#0f766e] sticky top-0 flex items-center justify-between px-16 shadow-md'>
           <div className={classNames(filteredHolders.length ? 'mt-72' : 'mt-0', 'w-3/5')}>
             <div className='w-full flex'>
               <input
-                className='w-full h-8  bg-white rounded-l-md px-2 border-r-0 shadow-md focus:outline-none'
+                className='w-full h-8  bg-[#d9d9d9] rounded-l-md px-2 border-r-0 shadow-md focus:outline-none'
                 placeholder={`Search Bored Ape Yacht Club NFT's by holder addresses, opensea url, or id`}
                 value={searchQuery}
                 onChange={(e) => {
@@ -148,7 +148,7 @@ export default function ApesPage(props: ApesProps) {
               />
               <button
                 type='button'
-                className='w-8 h-8 bg-white -left-5 rounded-r-md  shadow-md'
+                className='w-8 h-8 bg-[#d9d9d9] -left-5 rounded-r-md  shadow-md'
                 onClick={() => {
                   handleSearchButtonClick();
                 }}
@@ -169,7 +169,7 @@ export default function ApesPage(props: ApesProps) {
                     return (
                       <li key={index}>
                         <button
-                          className='w-full h-8 bg-white  border-t-2 text-left text-gray-500 hover:bg-gray-300 px-2'
+                          className='w-full h-8 bg-[#d9d9d9] border-t-2 text-left text-gray-500 hover:bg-gray-300 px-2'
                           onClick={() => {
                             setShowFilteredHolders(false);
                             setFinalQuery(holder);

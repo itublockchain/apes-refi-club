@@ -49,9 +49,9 @@ const main: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       txCount * CARBON_COEFFICENT * APE_COIN_PER_CARBON,
       txCount,
     ]);
-    merkleTreeValues.push([Number(unverified.id), txCount * CARBON_COEFFICENT * APE_COIN_PER_CARBON]);
+    merkleTreeValues.push([Number(unverified.id), Number(txCount * CARBON_COEFFICENT * APE_COIN_PER_CARBON)]);
   }
-
+  console.log(merkleTreeValues);
   console.log('Merkle root is creating...');
   const tree = StandardMerkleTree.of(merkleTreeValues, ['uint', 'uint']);
 
