@@ -19,9 +19,12 @@ export default function Home() {
             payment of the amount corresponding to the carbon emission created
             by the NFTs in their hands, up to a merge.
           </p>
-          <button className="drop-shadow-xl w-[350px] h-[70px] font-semibold text-white text-[32px] bg-[#0F766E] rounded-2xl mt-[50px]">
+          <a
+            href="#about"
+            className="inline-block drop-shadow-xl w-[350px] h-[70px] font-semibold text-white text-[32px] bg-[#0F766E] rounded-2xl mt-[50px] pt-[7px] text-center"
+          >
             Learn about us!
-          </button>
+          </a>
         </div>
         <Image
           src={ape1}
@@ -41,20 +44,20 @@ export default function Home() {
 
         <div className="absolute m-[75px] text-[#08423D]">
           <h1 className="font-bold text-[48px]">Bored Ape NFT Footprint</h1>
-          <div className="bg-[#CBDB78] w-[380px] pl-[11px] rounded-md">
-            <p>0x21e91485af0273251A53d1e9643d5531C1E4FCdc</p>
+          <div className="bg-[#CBDB78] w-[388px] pl-[11px] rounded-md">
+            <p>0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D</p>
           </div>
           <div className="flex my-[75px]">
             <div className="pr-[30px] text-center">
-              <h2 className="text-[48px]">6000k</h2>
+              <h2 className="text-[48px]">6129K</h2>
               <p>CO2 Emissions KG</p>
             </div>
             <div className="pr-[30px] text-center">
-              <h2 className="text-[48px]">6000k</h2>
+              <h2 className="text-[48px]">6073M</h2>
               <p>Gas used Units</p>
             </div>
             <div className="text-center">
-              <h2 className="text-[48px]">60000</h2>
+              <h2 className="text-[48px]">71899</h2>
               <p>Transactions </p>
             </div>
           </div>
@@ -68,35 +71,41 @@ export default function Home() {
           </div>
         </div>
         <div className="text-[#08423D] drop-shadow-xl absolute w-[450px] h-[550px] bg-white bottom-[75px] right-[100px] p-[50px] rounded-2xl">
-          <h2 className="text-[48px]">6789</h2>
+          <h2 className="text-[48px]">6129</h2>
           <p className="font-bold">Carbon credits paid</p>
           <p className="w-[250px] pt-[10px]">
             We give the right to manage the fund formed in return for the
             payment
           </p>
           <div className="bg-[#D9D9D9] w-[269px] h-[82px] text-left bg-gray-500 text-[33px] align-middle rounded-xl mt-[80px] p-[13px] pl-[20px]">
-            70.000 APE
+            30.042K $APE
           </div>
           <div className="bg-[#D9D9D9] w-[269px] h-[82px] text-left bg-gray-500 text-[33px] align-middle rounded-xl mt-[30px] p-[13px] pl-[20px]">
-            70.000$
+            122.580 $
           </div>
         </div>
       </div>
-      <div className="relative bg-gradient-to-b from-[#3AFFBF] to-[#085D70] w-full h-screen text-[#08423D]">
+      <div
+        className="relative bg-gradient-to-b from-[#3AFFBF] to-[#085D70] w-full h-screen text-[#08423D]"
+        id="about"
+      >
         <div className="absolute w-[700px] h-[200px] top-[100px] left-[75px]">
           <h2 className="text-[40px] font-bold mb-[30px]">Our Vision</h2>
           <p className="text-[28px] font-medium">
             We give the right to manage the fund formed in return for the
             payment of the amount corresponding to the carbon emission created
-            by the NFTs in their hands, up to a merge.
+            by the NFTs in their hands, up to merge.
           </p>
         </div>
         <div className="absolute w-[700px] h-[200px] bottom-[150px] right-[75px]">
-          <h2 className="text-[40px] font-bold mb-[30px]">Which technologies did we use?</h2>
+          <h2 className="text-[40px] font-bold mb-[30px]">
+            Which technologies did we use?
+          </h2>
           <p className="text-[28px] font-medium">
-            We give the right to manage the fund formed in return for the
-            payment of the amount corresponding to the carbon emission created
-            by the NFTs in their hands, up to a merge.
+            Our project is on Scroll and uses Polybase for NFT metadata storage.
+            We calculate carbon costs using The Graph and track NFT voting
+            history with Push Protocol. This enhances user experience and
+            improves our project's functionality.
           </p>
         </div>
       </div>
